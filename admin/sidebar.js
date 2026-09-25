@@ -48,15 +48,6 @@
         </button>
       </div>
 
-      <!-- Role Switcher -->
-      <div class="px-2">
-        <div class="p-1.5 bg-gray-100 rounded-xl flex items-center text-[10.5px] font-bold">
-          <span class="flex-1 py-1 text-center bg-white text-brand-primary rounded-lg shadow-xs">Admin</span>
-          <a href="../petugas/dashboard.html" class="flex-1 py-1 text-center text-gray-500 hover:text-gray-900">Petugas</a>
-          <a href="../siswa/dashboard.html" class="flex-1 py-1 text-center text-gray-500 hover:text-gray-900">Siswa</a>
-        </div>
-      </div>
-
       <!-- Modul Pengurusan -->
       <div>
         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3">Modul Pengurusan</span>
