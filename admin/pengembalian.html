@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengesahan Pemulangan — Sistem Inventori & Peminjaman Makmal</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              primary: '#1B4D3E',
+              'primary-hover': '#246350',
+              'primary-dark': '#103227',
+              mint: '#4EAE85',
+              'mint-light': '#68C49D',
+              'mint-subtle': '#EAF4F0',
+            }
+          },
+          boxShadow: {
+            'subtle-card': '0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 14px rgba(0, 0, 0, 0.03)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .bg-topo-mesh {
+      background-color: #103227;
+      background-image: 
+        radial-gradient(ellipse at top right, rgba(78, 174, 133, 0.28) 0%, transparent 60%),
+        radial-gradient(ellipse at bottom left, rgba(27, 77, 62, 0.7) 0%, transparent 65%),
+        repeating-radial-gradient(circle at 100% 100%, transparent 0, transparent 18px, rgba(255, 255, 255, 0.04) 19px, transparent 20px);
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-[#EDEDED] font-sans text-gray-900 min-h-screen p-2 sm:p-4 md:p-6 flex items-center justify-center antialiased">
+
+  <!-- MAIN APP CONTAINER -->
+  <div class="w-full max-w-[1440px] bg-white rounded-[28px] border border-gray-200/90 shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[920px]">
+
+    <!-- MOBILE HEADER -->
+    <div class="lg:hidden flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-full bg-brand-primary flex items-center justify-center text-brand-mint">
+          <i data-lucide="flask-conical" stroke-width="2.5" class="w-5 h-5"></i>
+        </div>
+        <span class="font-extrabold text-xl tracking-tight text-gray-900">SIM Makmal</span>
+      </div>
+      <button id="mobile-menu-btn" type="button" class="p-2 rounded-full border border-gray-200 text-gray-700">
+        <i data-lucide="menu" stroke-width="2.5" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- MOBILE OVERLAY -->
+    <div id="mobile-overlay" class="fixed inset-0 z-40 bg-black/40 hidden lg:hidden"></div>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white px-6 py-7 flex flex-col justify-between border-r border-gray-100 transform -translate-x-full transition-transform duration-300 ease-in-out lg:static lg:w-[260px] lg:translate-x-0 shrink-0">
+      <div class="space-y-7">
+        <!-- Brand -->
+        <div class="flex items-center justify-between px-2">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-2xl bg-brand-primary flex items-center justify-center text-brand-mint shadow-md shadow-brand-primary/20">
+              <i data-lucide="flask-conical" stroke-width="2.5" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <span class="font-extrabold text-xl tracking-tight text-gray-900 block leading-tight">SIM Makmal</span>
+              <span class="text-[10px] font-semibold text-gray-400 tracking-wider uppercase">Sains & Inovasi</span>
+            </div>
+          </div>
+          <button id="mobile-close-btn" type="button" class="lg:hidden p-1.5 rounded-full text-gray-500 hover:bg-gray-100">
+            <i data-lucide="x" stroke-width="2.5" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Role Switcher Pill -->
+        <div class="px-2">
+          <div class="p-1.5 bg-gray-100 rounded-xl flex items-center text-[10.5px] font-bold">
+            <span class="flex-1 py-1 text-center bg-white text-brand-primary rounded-lg shadow-xs">Admin</span>
+            <a href="../petugas/dashboard.html" class="flex-1 py-1 text-center text-gray-500 hover:text-gray-900">Petugas</a>
+            <a href="../siswa/dashboard.html" class="flex-1 py-1 text-center text-gray-500 hover:text-gray-900">Siswa</a>
+          </div>
+        </div>
+
+        <!-- Navigation Group -->
+        <div>
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3">Modul Pengurusan</span>
+          <nav class="mt-2 space-y-1">
+            <a href="dashboard.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-full text-gray-600 hover:text-gray-950 hover:bg-gray-50 text-xs font-semibold transition-all">
+              <i data-lucide="layout-grid" class="w-4 h-4 text-gray-400"></i>
+              <span>Papan Pemuka</span>
+            </a>
+            <a href="master-barang.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-full text-gray-600 hover:text-gray-950 hover:bg-gray-50 text-xs font-semibold transition-all">
+              <i data-lucide="box" class="w-4 h-4 text-gray-400"></i>
+              <span>Master Data Alatan</span>
+            </a>
+            <a href="petugas.html" class="flex items-center justify-between px-3.5 py-2.5 rounded-full text-gray-600 hover:text-gray-950 hover:bg-gray-50 text-xs font-semibold transition-all">
+              <div class="flex items-center gap-3">
+                <i data-lucide="users" class="w-4 h-4 text-gray-400"></i>
+                <span>Akaun Petugas</span>
+              </div>
+            </a>
+            <a href="laporan.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-full text-gray-600 hover:text-gray-950 hover:bg-gray-50 text-xs font-semibold transition-all">
+              <i data-lucide="file-bar-chart" class="w-4 h-4 text-gray-400"></i>
+              <span>Laporan Penuh</span>
+            </a>
+          </nav>
+        </div>
+
+        <div>
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3">Sirkulasi & Transaksi</span>
+          <nav class="mt-2 space-y-1">
+            <a href="peminjaman.html" class="flex items-center justify-between px-3.5 py-2 rounded-full text-gray-600 hover:text-gray-950 hover:bg-gray-50 text-xs font-semibold transition-all">
+              <div class="flex items-center gap-3">
+                <i data-lucide="arrow-up-right-from-circle" class="w-3.5 h-3.5 text-gray-400"></i>
+                <span>Peminjaman</span>
+              </div>
+              <span class="bg-emerald-50 text-brand-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100" id="sidebar-loans-count">0</span>
+            </a>
+            <!-- Active: Pengembalian -->
+            <a href="pengembalian.html" class="flex items-center justify-between px-3.5 py-2 rounded-full bg-brand-primary text-white font-semibold text-xs tracking-wide shadow-sm transition-all">
+              <div class="flex items-center gap-3">
+                <i data-lucide="arrow-down-left-from-circle" class="w-3.5 h-3.5 text-brand-mint"></i>
+                <span>Pengembalian</span>
+              </div>
+              <span class="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" id="sidebar-overdue-count">0</span>
+            </a>
+          </nav>
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-gray-100 flex items-center gap-3 px-2">
+        <div class="w-9 h-9 rounded-full bg-brand-primary text-brand-mint font-bold text-xs flex items-center justify-center ring-2 ring-brand-mint/30">
+          ADM
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-xs font-bold text-gray-900 truncate">Dr. Naufal</div>
+          <div class="text-[10px] text-brand-primary font-bold">Ketua Pentadbir Makmal</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN WORKSPACE -->
+    <div class="flex-1 flex flex-col bg-[#F6F7F9] min-w-0 overflow-y-auto">
+
+      <!-- TOP HEADER -->
+      <header class="px-6 lg:px-8 py-4 bg-[#F6F7F9] flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-200/60 sticky top-0 z-30 backdrop-blur-md bg-opacity-95">
+        <div>
+          <h1 class="text-xl font-extrabold tracking-tight text-gray-900">Pengesahan & Rekod Pemulangan Alatan</h1>
+          <p class="text-xs text-gray-500 font-medium">Verifikasi kondisi fizikal (Baik vs Rosak), tarikh sebenar, & pemulihan stok makmal</p>
+        </div>
+
+        <div class="flex items-center gap-3 self-end sm:self-auto">
+          <a href="peminjaman.html" class="px-4 py-2 bg-brand-primary hover:bg-brand-primary-hover active:scale-95 text-white font-semibold text-xs rounded-full flex items-center gap-1.5 shadow-sm transition-all">
+            <i data-lucide="plus" stroke-width="2.5" class="w-3.5 h-3.5"></i>
+            <span>Pinjaman Baru</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- MAIN CONTENT -->
+      <main class="p-6 lg:p-8 space-y-6">
+
+        <!-- FILTER & TAB BAR -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-gray-100 shadow-subtle-card">
+          
+          <!-- Tab Navigation -->
+          <div class="flex items-center gap-1.5 bg-gray-100 p-1 rounded-xl text-xs font-bold">
+            <button type="button" onclick="setFilter('pending')" id="tab-pending" class="px-4 py-2 rounded-lg bg-white text-brand-primary shadow-xs transition-all flex items-center gap-1.5">
+              <span>Menunggu Pulang</span>
+              <span class="bg-brand-mint text-brand-primary-dark text-[10px] font-mono px-1.5 py-0.2 rounded-full" id="count-tab-pending">0</span>
+            </button>
+            <button type="button" onclick="setFilter('overdue')" id="tab-overdue" class="px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 transition-all flex items-center gap-1.5">
+              <span>Lewat / Overdue</span>
+              <span class="bg-rose-100 text-rose-700 text-[10px] font-mono px-1.5 py-0.2 rounded-full" id="count-tab-overdue">0</span>
+            </button>
+            <button type="button" onclick="setFilter('returned')" id="tab-returned" class="px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 transition-all flex items-center gap-1.5">
+              <span>Selesai Dipulangkan</span>
+              <span class="bg-gray-200 text-gray-700 text-[10px] font-mono px-1.5 py-0.2 rounded-full" id="count-tab-returned">0</span>
+            </button>
+          </div>
+
+          <!-- Search Box -->
+          <div class="relative w-full md:w-80">
+            <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input id="search-input" type="text" placeholder="Cari NIS, nama murid, alatan..." oninput="handleSearch(this.value)"
+              class="w-full pl-10 pr-4 py-2 bg-gray-50 text-xs rounded-full border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all">
+          </div>
+        </div>
+
+        <!-- SENARAI JADUAL TRANSAKSI -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-subtle-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-gray-50/80 border-b border-gray-100 text-gray-400 font-bold uppercase tracking-wider text-[10px]">
+                <tr>
+                  <th class="py-3.5 px-5">ID Transaksi</th>
+                  <th class="py-3.5 px-5">Peminjam (Murid)</th>
+                  <th class="py-3.5 px-5">Alatan & Kuantiti</th>
+                  <th class="py-3.5 px-5">Tarikh Sasaran</th>
+                  <th class="py-3.5 px-5 text-center">Status / Tempoh</th>
+                  <th class="py-3.5 px-5 text-right">Tindakan</th>
+                </tr>
+              </thead>
+              <tbody id="loans-table-tbody" class="divide-y divide-gray-100">
+                <!-- Diisi secara dinamik via JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Empty State -->
+          <div id="empty-state" class="hidden py-16 text-center text-gray-400">
+            <div class="w-12 h-12 rounded-full bg-emerald-50 text-brand-mint flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="check-check" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-sm font-bold text-gray-700">Tiada rekod peminjaman dalam kategori ini</h3>
+            <p class="text-xs text-gray-400 mt-1">Semua alatan makmal teratur atau belum ada rekod berkaitan.</p>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL DIALOG VERIFIKASI PEMULANGAN & KONDISI FIZIKAL        -->
+  <!-- ============================================================ -->
+  <div id="return-modal-overlay" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl shadow-2xl border border-gray-200 max-w-2xl w-full p-6 sm:p-8 space-y-6 relative animate-in fade-in zoom-in duration-200">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-brand-primary text-brand-mint flex items-center justify-center">
+            <i data-lucide="check-circle" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-gray-900">Verifikasi Pemulangan Alatan</h3>
+            <p class="text-xs text-gray-400">Pemeriksaan kondisi fizikal dan pengemaskinian stok makmal</p>
+          </div>
+        </div>
+        <button onclick="closeReturnModal()" class="p-1.5 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Ringkasan Transaksi Peminjaman -->
+      <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div>
+          <span class="text-[10px] text-gray-400 font-bold uppercase block">ID Transaksi</span>
+          <span class="font-mono font-bold text-brand-primary text-xs" id="modal-trx-id">-</span>
+        </div>
+        <div>
+          <span class="text-[10px] text-gray-400 font-bold uppercase block">Peminjam</span>
+          <span class="font-bold text-gray-900" id="modal-student-name">-</span>
+          <div class="text-[10px] text-gray-400" id="modal-student-class">-</div>
+        </div>
+        <div>
+          <span class="text-[10px] text-gray-400 font-bold uppercase block">Tarikh Pinjam</span>
+          <span class="font-mono text-gray-700" id="modal-borrow-date">-</span>
+        </div>
+        <div>
+          <span class="text-[10px] text-gray-400 font-bold uppercase block">Sasaran Pulang</span>
+          <span class="font-mono font-bold text-rose-700" id="modal-target-date">-</span>
+        </div>
+      </div>
+
+      <!-- SENARAI ITEM & SEMAKAN KONDISI FIZIKAL (BAIK VS ROSAK) -->
+      <div class="space-y-3">
+        <label class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center justify-between">
+          <span>Pemeriksaan Kondisi Fizikal Setiap Alatan</span>
+          <span class="text-[11px] font-normal text-gray-400">Pilih status bagi setiap alatan</span>
+        </label>
+
+        <div id="modal-items-list" class="space-y-3 max-h-[280px] overflow-y-auto pr-1">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <!-- Tarikh Sebenar & Pegawai Pengesah -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Tarikh Sebenar Pemulangan</label>
+          <input id="modal-actual-date" type="date" class="w-full px-3.5 py-2 bg-gray-100 rounded-xl border border-gray-200 text-xs font-mono text-gray-800" readonly>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Pegawai Makmal Pengesah</label>
+          <input id="modal-officer-name" type="text" value="En. Naufal (Pegawai Makmal)" class="w-full px-3.5 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs font-semibold text-gray-800">
+        </div>
+      </div>
+
+      <!-- Catatan Tambahan -->
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 mb-1">Catatan Tambahan / Ulasan Pemulangan</label>
+        <textarea id="modal-notes" rows="2" placeholder="Catatan sekiranya terdapat kerosakan atau arahan gantian..." class="w-full px-3.5 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:ring-2 focus:ring-brand-primary focus:outline-none"></textarea>
+      </div>
+
+      <!-- Modal Action Buttons -->
+      <div class="pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
+        <button type="button" onclick="closeReturnModal()" class="px-4 py-2.5 text-xs font-semibold text-gray-600 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-all">
+          Batal
+        </button>
+        <button type="button" onclick="confirmReturnProcess()" class="px-6 py-2.5 bg-brand-primary hover:bg-brand-primary-hover active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-brand-primary/20 flex items-center gap-2">
+          <i data-lucide="check-check" class="w-4 h-4 text-brand-mint"></i>
+          <span>Sahkan Pemulangan & Kemaskini Stok</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Shared Store Script -->
+  <script src="../store.js"></script>
+
+  <script>
+    let activeFilter = 'pending'; // 'pending' | 'overdue' | 'returned'
+    let currentSearchQuery = '';
+    let selectedLoanForReturn = null;
+
+    function refreshIcons() {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    }
+
+    // Toggle Mobile
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileCloseBtn = document.getElementById('mobile-close-btn');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    const sidebar = document.getElementById('sidebar');
+
+    function toggleMobile() {
+      sidebar.classList.toggle('-translate-x-full');
+      mobileOverlay.classList.toggle('hidden');
+    }
+    if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMobile);
+    if (mobileCloseBtn) mobileCloseBtn.addEventListener('click', toggleMobile);
+    if (mobileOverlay) mobileOverlay.addEventListener('click', toggleMobile);
+
+    // Filter Change
+    function setFilter(filterName) {
+      activeFilter = filterName;
+
+      // Update button tab styles
+      const tabs = ['pending', 'overdue', 'returned'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === filterName) {
+          btn.className = 'px-4 py-2 rounded-lg bg-white text-brand-primary shadow-xs transition-all flex items-center gap-1.5';
+        } else {
+          btn.className = 'px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 transition-all flex items-center gap-1.5';
+        }
+      });
+
+      renderLoansTable();
+    }
+
+    function handleSearch(val) {
+      currentSearchQuery = val.toLowerCase().trim();
+      renderLoansTable();
+    }
+
+    // Render Table
+    function renderLoansTable() {
+      const tbody = document.getElementById('loans-table-tbody');
+      const emptyState = document.getElementById('empty-state');
+      tbody.innerHTML = '';
+
+      const allLoans = MakmalStore.getLoans();
+      const metrics = MakmalStore.getMetrics();
+
+      // Update Tab Badges
+      const pendingCount = allLoans.filter(l => l.status === 'active' || l.status === 'overdue').length;
+      const overdueCount = allLoans.filter(l => l.status === 'overdue').length;
+      const returnedCount = allLoans.filter(l => l.status === 'returned').length;
+
+      document.getElementById('count-tab-pending').textContent = pendingCount;
+      document.getElementById('count-tab-overdue').textContent = overdueCount;
+      document.getElementById('count-tab-returned').textContent = returnedCount;
+
+      // Sidebar badges
+      document.getElementById('sidebar-loans-count').textContent = metrics.activeLoansCount;
+      const overdueSide = document.getElementById('sidebar-overdue-count');
+      overdueSide.textContent = overdueCount;
+      if (overdueCount > 0) overdueSide.classList.remove('hidden');
+      else overdueSide.classList.add('hidden');
+
+      // Tapis berdasarkan tab
+      let filtered = allLoans.filter(l => {
+        if (activeFilter === 'pending') return l.status === 'active' || l.status === 'overdue';
+        if (activeFilter === 'overdue') return l.status === 'overdue';
+        if (activeFilter === 'returned') return l.status === 'returned';
+        return true;
+      });
+
+      // Tapis carian
+      if (currentSearchQuery) {
+        filtered = filtered.filter(l => 
+          l.id.toLowerCase().includes(currentSearchQuery) ||
+          l.studentName.toLowerCase().includes(currentSearchQuery) ||
+          l.nis.toLowerCase().includes(currentSearchQuery) ||
+          l.items.some(i => i.name.toLowerCase().includes(currentSearchQuery))
+        );
+      }
+
+      if (filtered.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      filtered.forEach(loan => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-50/70 transition-colors';
+
+        const isOverdue = loan.status === 'overdue';
+        const isReturned = loan.status === 'returned';
+        const itemsText = loan.items.map(i => `${i.qty}x ${i.name}`).join('<br>');
+
+        tr.innerHTML = `
+          <td class="py-4 px-5">
+            <span class="font-mono font-bold text-gray-900 block">${loan.id}</span>
+            <span class="text-[10px] text-gray-400 font-mono">Pinjam: ${MakmalStore.formatDate(loan.borrowDate)}</span>
+          </td>
+          <td class="py-4 px-5">
+            <div class="font-bold text-gray-900">${loan.studentName}</div>
+            <div class="text-[11px] text-gray-500 font-medium">NIS: ${loan.nis} • ${loan.studentClass}</div>
+          </td>
+          <td class="py-4 px-5 text-gray-700 leading-snug">
+            ${itemsText}
+          </td>
+          <td class="py-4 px-5 font-mono text-gray-600">
+            ${MakmalStore.formatDate(loan.targetReturnDate)}
+          </td>
+          <td class="py-4 px-5 text-center">
+            ${
+              isReturned
+                ? `<span class="px-2.5 py-1 bg-gray-100 text-gray-700 rounded-full font-bold text-[10px] inline-flex items-center gap-1">
+                    <i data-lucide="check" class="w-3 h-3 text-emerald-600"></i>
+                    Dipulangkan (${loan.returnCondition || 'Baik'})
+                   </span>
+                   <div class="text-[9px] text-gray-400 font-mono mt-1">${MakmalStore.formatDate(loan.actualReturnDate)}</div>`
+                : isOverdue
+                ? `<span class="px-2.5 py-1 bg-rose-50 text-rose-700 rounded-full font-bold text-[10px] border border-rose-200 inline-flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                    Lewat Sasaran
+                   </span>`
+                : `<span class="px-2.5 py-1 bg-emerald-50 text-brand-primary rounded-full font-bold text-[10px] border border-emerald-100">
+                    Dalam Tempoh
+                   </span>`
+            }
+          </td>
+          <td class="py-4 px-5 text-right">
+            ${
+              isReturned
+                ? `<button onclick="viewCompletedDetails('${loan.id}')" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-all inline-flex items-center gap-1">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                    <span>Butiran</span>
+                   </button>`
+                : `<button onclick="openReturnModal('${loan.id}')" class="px-3.5 py-1.5 bg-brand-primary hover:bg-brand-primary-hover active:scale-95 text-white text-xs font-bold rounded-lg shadow-xs transition-all inline-flex items-center gap-1.5">
+                    <i data-lucide="check-circle" class="w-3.5 h-3.5 text-brand-mint"></i>
+                    <span>Sahkan Pulang</span>
+                   </button>`
+            }
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+
+      refreshIcons();
+    }
+
+    // Buka Modal Verifikasi Pemulangan
+    function openReturnModal(trxId) {
+      const loan = MakmalStore.getLoanById(trxId);
+      if (!loan) return;
+
+      selectedLoanForReturn = loan;
+
+      document.getElementById('modal-trx-id').textContent = loan.id;
+      document.getElementById('modal-student-name').textContent = loan.studentName;
+      document.getElementById('modal-student-class').textContent = `NIS: ${loan.nis} • ${loan.studentClass}`;
+      document.getElementById('modal-borrow-date').textContent = MakmalStore.formatDate(loan.borrowDate);
+      document.getElementById('modal-target-date').textContent = MakmalStore.formatDate(loan.targetReturnDate);
+      document.getElementById('modal-actual-date').value = new Date().toISOString().split('T')[0];
+      document.getElementById('modal-notes').value = '';
+
+      // Bina senarai alatan untuk pemeriksaan kondisi fizikal
+      const itemsList = document.getElementById('modal-items-list');
+      itemsList.innerHTML = '';
+
+      loan.items.forEach((item, idx) => {
+        const itemBox = document.createElement('div');
+        itemBox.className = 'p-3.5 bg-gray-50 rounded-xl border border-gray-200 space-y-2.5';
+        itemBox.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="font-bold text-gray-900 text-xs">${item.name}</span>
+              <span class="text-[10px] text-gray-400 font-mono block">ID: ${item.itemId} • Jumlah: ${item.qty} Unit</span>
+            </div>
+            <div class="flex items-center gap-2 bg-white px-2 py-1 rounded-lg border border-gray-200">
+              <label class="flex items-center gap-1 cursor-pointer text-[11px] font-bold text-emerald-700">
+                <input type="radio" name="condition_${idx}" value="good" checked onchange="toggleDamageField(${idx}, false)" class="text-brand-primary focus:ring-brand-primary">
+                <span>Baik</span>
+              </label>
+              <span class="text-gray-300">|</span>
+              <label class="flex items-center gap-1 cursor-pointer text-[11px] font-bold text-rose-600">
+                <input type="radio" name="condition_${idx}" value="damaged" onchange="toggleDamageField(${idx}, true)" class="text-rose-600 focus:ring-rose-500">
+                <span>Rosak</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Damage details field (hidden by default) -->
+          <div id="damage-box-${idx}" class="hidden p-2.5 bg-rose-50/70 border border-rose-200 rounded-lg space-y-2 animate-in fade-in duration-150">
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-1.5">
+                <label class="text-[11px] font-bold text-rose-800">Unit Rosak:</label>
+                <input type="number" id="damage-qty-${idx}" min="1" max="${item.qty}" value="1" 
+                  class="w-16 px-2 py-1 bg-white border border-rose-200 rounded text-xs font-mono font-bold text-rose-700 text-center">
+              </div>
+              <div class="flex-1">
+                <input type="text" id="damage-desc-${idx}" placeholder="Catat kerosakan (cth: Kaca retak, fius putus)" 
+                  class="w-full px-2.5 py-1 bg-white border border-rose-200 rounded text-xs text-rose-900 placeholder-rose-300">
+              </div>
+            </div>
+            <p class="text-[10px] text-rose-600 font-medium">Alatan rosak akan dialihkan ke kuantiti kuarantin makmal secara automatik.</p>
+          </div>
+        `;
+        itemsList.appendChild(itemBox);
+      });
+
+      document.getElementById('return-modal-overlay').classList.remove('hidden');
+      refreshIcons();
+    }
+
+    function toggleDamageField(idx, show) {
+      const box = document.getElementById(`damage-box-${idx}`);
+      if (show) box.classList.remove('hidden');
+      else box.classList.add('hidden');
+    }
+
+    function closeReturnModal() {
+      document.getElementById('return-modal-overlay').classList.add('hidden');
+      selectedLoanForReturn = null;
+    }
+
+    // Proses Pengesahan Pemulangan
+    function confirmReturnProcess() {
+      if (!selectedLoanForReturn) return;
+
+      const loan = selectedLoanForReturn;
+      const officerName = document.getElementById('modal-officer-name').value.trim();
+      const notes = document.getElementById('modal-notes').value.trim();
+
+      const returnConditions = [];
+
+      loan.items.forEach((item, idx) => {
+        const isDamaged = document.querySelector(`input[name="condition_${idx}"][value="damaged"]`).checked;
+        if (isDamaged) {
+          const badQty = parseInt(document.getElementById(`damage-qty-${idx}`).value, 10) || 1;
+          const damageNote = document.getElementById(`damage-desc-${idx}`).value.trim();
+          const goodQty = Math.max(0, item.qty - badQty);
+
+          returnConditions.push({
+            itemId: item.itemId,
+            goodQty: goodQty,
+            damagedQty: badQty,
+            damageNote: damageNote || 'Kerosakan fizikal semasa amali'
+          });
+        } else {
+          returnConditions.push({
+            itemId: item.itemId,
+            goodQty: item.qty,
+            damagedQty: 0,
+            damageNote: ''
+          });
+        }
+      });
+
+      try {
+        MakmalStore.returnLoan(loan.id, {
+          returnItemsCondition: returnConditions,
+          notes,
+          officerName
+        });
+
+        MakmalStore.showToast(`Pemulangan alatan ${loan.id} berjaya disahkan & stok dikemaskini!`, 'success');
+        closeReturnModal();
+        renderLoansTable();
+      } catch (err) {
+        MakmalStore.showToast(err.message, 'error');
+      }
+    }
+
+    // Papar Butiran Transaksi Selesai
+    function viewCompletedDetails(trxId) {
+      const loan = MakmalStore.getLoanById(trxId);
+      if (!loan) return;
+
+      alert(`MAKLUMAT PEMULANGAN:\nID: ${loan.id}\nPeminjam: ${loan.studentName} (${loan.nis})\nTarikh Pinjam: ${MakmalStore.formatDate(loan.borrowDate)}\nTarikh Pulang: ${MakmalStore.formatDate(loan.actualReturnDate)}\nStatus Kondisi: ${loan.returnCondition}\nCatatan: ${loan.returnNotes || 'Tiada catatan'}`);
+    }
+
+    // Semak jika ada parameter URL cth: ?id=TRX-202409-001 atau ?filter=overdue
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const filterParam = urlParams.get('filter');
+      const idParam = urlParams.get('id');
+
+      if (filterParam === 'overdue') {
+        setFilter('overdue');
+      } else {
+        renderLoansTable();
+      }
+
+      if (idParam) {
+        setTimeout(() => {
+          openReturnModal(idParam);
+        }, 150);
+      }
+    });
+
+    window.addEventListener('sim_makmal_sync', renderLoansTable);
+  </script>
+</body>
+</html>

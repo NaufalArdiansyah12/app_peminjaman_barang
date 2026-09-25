@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Sistem Inventori & Peminjaman Makmal</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              primary: '#1B4D3E',
+              'primary-hover': '#246350',
+              'primary-dark': '#103227',
+              mint: '#4EAE85',
+              'mint-light': '#68C49D',
+              'mint-subtle': '#EAF4F0',
+            }
+          },
+          boxShadow: {
+            'subtle-card': '0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 14px rgba(0, 0, 0, 0.03)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .bg-topo-mesh {
+      background-color: #103227;
+      background-image: 
+        radial-gradient(ellipse at top right, rgba(78, 174, 133, 0.28) 0%, transparent 60%),
+        radial-gradient(ellipse at bottom left, rgba(27, 77, 62, 0.7) 0%, transparent 65%),
+        repeating-radial-gradient(circle at 100% 100%, transparent 0, transparent 18px, rgba(255, 255, 255, 0.04) 19px, transparent 20px);
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-[#EDEDED] font-sans text-gray-900 min-h-screen p-2 sm:p-4 md:p-6 flex items-center justify-center antialiased">
+
+  <!-- MAIN APP CONTAINER -->
+  <div class="w-full max-w-[1440px] bg-white rounded-[28px] border border-gray-200/90 shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[920px]">
+
+    <!-- MOBILE HEADER -->
+    <div class="lg:hidden flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-full bg-brand-primary flex items-center justify-center text-brand-mint">
+          <i data-lucide="shield-check" stroke-width="2.5" class="w-5 h-5"></i>
+        </div>
+        <span class="font-extrabold text-xl tracking-tight text-gray-900">SIM Makmal <span class="text-xs px-2 py-0.5 bg-brand-primary text-white rounded-full">Admin</span></span>
+      </div>
+      <button id="mobile-menu-btn" type="button" class="p-2 rounded-full border border-gray-200 text-gray-700">
+        <i data-lucide="menu" stroke-width="2.5" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <div id="mobile-overlay" class="fixed inset-0 z-40 bg-black/40 hidden lg:hidden"></div>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar" data-active="dashboard"></aside>
+    <script src="sidebar.js"></script>
+
+    <!-- RIGHT MAIN WORKSPACE -->
+    <div class="flex-1 flex flex-col bg-[#F6F7F9] min-w-0 overflow-y-auto">
+
+      <!-- TOP HEADER -->
+      <header class="px-6 lg:px-8 py-4 bg-[#F6F7F9] flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-200/60 sticky top-0 z-30 backdrop-blur-md bg-opacity-95">
+        <div>
+          <h1 class="text-xl font-extrabold tracking-tight text-gray-900">Papan Pemuka Eksekutif Admin</h1>
+          <p class="text-xs text-gray-500 font-medium">Pengurusan berpusat master data alatan, akaun petugas, dan laporan sirkulasi makmal</p>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+          <a href="master-barang.html" class="px-4 py-2 bg-brand-primary hover:bg-brand-primary-hover active:scale-95 text-white font-semibold text-xs rounded-full flex items-center gap-1.5 shadow-sm transition-all">
+            <i data-lucide="plus" stroke-width="2.5" class="w-3.5 h-3.5"></i>
+            <span>Tambah Alatan</span>
+          </a>
+          <a href="petugas.html" class="px-4 py-2 bg-white hover:bg-gray-50 active:scale-95 text-gray-800 font-semibold text-xs rounded-full border border-gray-200 shadow-xs transition-all flex items-center gap-1.5">
+            <i data-lucide="user-plus" stroke-width="2.5" class="w-3.5 h-3.5 text-brand-mint"></i>
+            <span>Urus Petugas</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- MAIN CONTENT -->
+      <main class="p-6 lg:p-8 space-y-6">
+
+        <!-- 4 KPI SUMMARY METRIC CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+
+          <!-- KPI 1: Master Data Alatan -->
+          <div class="bg-brand-primary text-white p-5 rounded-2xl shadow-subtle-card relative flex flex-col justify-between h-36">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-emerald-100/90">Master Data Alatan</span>
+              <a href="master-barang.html" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-brand-mint transition-all">
+                <i data-lucide="arrow-up-right" stroke-width="2.5" class="w-4 h-4"></i>
+              </a>
+            </div>
+            <div>
+              <div class="text-3xl font-extrabold tracking-tight font-mono text-white" id="kpi-total-units">0</div>
+              <div class="flex items-center gap-1.5 mt-2">
+                <span class="bg-white/15 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" id="kpi-unique-items">0 jenis</span>
+                <span class="text-[11px] text-emerald-100/80 font-medium">dalam katalog makmal</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI 2: Akaun Petugas Berdaftar -->
+          <div class="bg-white text-gray-900 p-5 rounded-2xl border border-gray-100 shadow-subtle-card relative flex flex-col justify-between h-36">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-gray-600">Akaun Petugas Makmal</span>
+              <a href="petugas.html" class="w-7 h-7 rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-brand-primary transition-all">
+                <i data-lucide="arrow-up-right" stroke-width="2.5" class="w-4 h-4"></i>
+              </a>
+            </div>
+            <div>
+              <div class="text-3xl font-extrabold tracking-tight font-mono text-gray-900" id="kpi-officers-count">0</div>
+              <div class="flex items-center gap-1.5 mt-2">
+                <span class="bg-emerald-50 text-brand-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100" id="kpi-active-officers">0 aktif</span>
+                <span class="text-[11px] text-gray-400 font-medium">mengurus makmal</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI 3: Sirkulasi Pinjaman Aktif -->
+          <div class="bg-white text-gray-900 p-5 rounded-2xl border border-gray-100 shadow-subtle-card relative flex flex-col justify-between h-36">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-gray-600">Alatan Sedang Dipinjam</span>
+              <a href="peminjaman.html" class="w-7 h-7 rounded-full bg-emerald-50 hover:bg-emerald-100 flex items-center justify-center text-brand-primary transition-all">
+                <i data-lucide="arrow-up-right" stroke-width="2.5" class="w-4 h-4"></i>
+              </a>
+            </div>
+            <div>
+              <div class="text-3xl font-extrabold tracking-tight font-mono text-brand-primary" id="kpi-borrowed-units">0</div>
+              <div class="flex items-center gap-1.5 mt-2">
+                <span class="bg-emerald-50 text-brand-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100" id="kpi-active-loans">0 transaksi</span>
+                <span class="text-[11px] text-gray-400 font-medium">sirkulasi aktif</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI 4: Alatan Rosak / Kuarantin -->
+          <div class="bg-white text-gray-900 p-5 rounded-2xl border border-gray-100 shadow-subtle-card relative flex flex-col justify-between h-36">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-gray-600">Alatan Rosak / Selenggara</span>
+              <div class="w-7 h-7 rounded-full bg-amber-50 flex items-center justify-center text-amber-600">
+                <i data-lucide="wrench" stroke-width="2.5" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div>
+              <div class="text-3xl font-extrabold tracking-tight text-amber-600 font-mono" id="kpi-damaged-units">0</div>
+              <div class="flex items-center gap-1.5 mt-2">
+                <span class="text-[11px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full font-medium border border-amber-200/80">Kuantiti Kuarantin</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- QUICK ACCESS MODULE GRID -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <!-- Card 1: Master Data Barang -->
+          <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-subtle-card space-y-3 flex flex-col justify-between">
+            <div class="space-y-2">
+              <div class="w-10 h-10 rounded-xl bg-emerald-50 text-brand-primary flex items-center justify-center">
+                <i data-lucide="boxes" stroke-width="2.5" class="w-5 h-5"></i>
+              </div>
+              <h3 class="font-bold text-sm text-gray-900">Pengurusan Master Data</h3>
+              <p class="text-xs text-gray-500 leading-relaxed">Tambah alatan baharu, selaras stok sedia ada, kemas kini kod alatan dan lokasi rak penyimpanan.</p>
+            </div>
+            <a href="master-barang.html" class="w-full py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 border border-gray-200 transition-all">
+              <span>Buka Master Data</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+
+          <!-- Card 2: Pengurusan Akaun Petugas -->
+          <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-subtle-card space-y-3 flex flex-col justify-between">
+            <div class="space-y-2">
+              <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <i data-lucide="user-cog" stroke-width="2.5" class="w-5 h-5"></i>
+              </div>
+              <h3 class="font-bold text-sm text-gray-900">Akaun Petugas Makmal</h3>
+              <p class="text-xs text-gray-500 leading-relaxed">Daftar petugas baharu, tetapkan makmal penugasan, dan urus status aktif/nyahaktif kakitangan makmal.</p>
+            </div>
+            <a href="petugas.html" class="w-full py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 border border-gray-200 transition-all">
+              <span>Urus Akaun Petugas</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+
+          <!-- Card 3: Laporan & Log Sirkulasi -->
+          <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-subtle-card space-y-3 flex flex-col justify-between">
+            <div class="space-y-2">
+              <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                <i data-lucide="file-text" stroke-width="2.5" class="w-5 h-5"></i>
+              </div>
+              <h3 class="font-bold text-sm text-gray-900">Laporan & Audit Sirkulasi</h3>
+              <p class="text-xs text-gray-500 leading-relaxed">Analisis audit log transaksi lengkap, semakan rekod kerosakan, dan muat turun/cetak laporan berkala.</p>
+            </div>
+            <a href="laporan.html" class="w-full py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 border border-gray-200 transition-all">
+              <span>Lihat Laporan Makmal</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- AUDIT LOG AKTIVITI TERKINI -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-subtle-card p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-extrabold text-gray-900">Log Aktiviti & Audit Pentadbiran</h2>
+              <p class="text-xs text-gray-400">Rekod aktiviti peminjaman, pemulangan, dan pengemaskinian master data</p>
+            </div>
+            <a href="laporan.html" class="text-xs font-bold text-brand-primary hover:underline flex items-center gap-1">
+              <span>Semua Log Audit &rarr;</span>
+            </a>
+          </div>
+
+          <div id="admin-activities-list" class="divide-y divide-gray-50">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="../store.js"></script>
+
+  <script>
+    function refreshIcons() {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    }
+
+    // Toggle Mobile
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileCloseBtn = document.getElementById('mobile-close-btn');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    const sidebar = document.getElementById('sidebar');
+
+    function toggleMobile() {
+      sidebar.classList.toggle('-translate-x-full');
+      mobileOverlay.classList.toggle('hidden');
+    }
+    if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMobile);
+    if (mobileCloseBtn) mobileCloseBtn.addEventListener('click', toggleMobile);
+    if (mobileOverlay) mobileOverlay.addEventListener('click', toggleMobile);
+
+    function loadAdminDashboard() {
+      const metrics = MakmalStore.getMetrics();
+      const activities = MakmalStore.getActivities();
+
+      document.getElementById('kpi-total-units').textContent = metrics.totalInventoryUnits;
+      document.getElementById('kpi-unique-items').textContent = metrics.totalUniqueItems + ' jenis';
+      document.getElementById('kpi-officers-count').textContent = metrics.totalOfficers;
+      document.getElementById('kpi-active-officers').textContent = metrics.activeOfficersCount + ' aktif';
+      document.getElementById('kpi-borrowed-units').textContent = metrics.totalBorrowedUnits;
+      document.getElementById('kpi-active-loans').textContent = metrics.activeLoansCount + ' transaksi';
+      document.getElementById('kpi-damaged-units').textContent = metrics.totalDamagedUnits;
+
+      // Sidebar badges
+      document.getElementById('sidebar-officer-count').textContent = metrics.totalOfficers;
+      document.getElementById('badge-active-loans').textContent = metrics.activeLoansCount;
+      const overdueSide = document.getElementById('badge-overdue-loans');
+      if (metrics.overdueLoansCount > 0) {
+        overdueSide.textContent = metrics.overdueLoansCount + ' lewat';
+        overdueSide.classList.remove('hidden');
+      } else {
+        overdueSide.classList.add('hidden');
+      }
+
+      // Render Activities List
+      const actContainer = document.getElementById('admin-activities-list');
+      actContainer.innerHTML = '';
+      activities.slice(0, 6).forEach(act => {
+        const div = document.createElement('div');
+        div.className = 'py-3 flex items-start gap-3 text-xs';
+        div.innerHTML = `
+          <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-700 shrink-0 mt-0.5">
+            <i data-lucide="${act.type === 'item' ? 'box' : act.type === 'officer' ? 'user' : act.type === 'loan' ? 'arrow-up-right' : 'check'}" class="w-4 h-4"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-bold text-gray-900">${act.title}</div>
+            <div class="text-[11px] text-gray-500 mt-0.5">${act.desc}</div>
+          </div>
+          <div class="text-[10px] text-gray-400 font-mono shrink-0">${act.time}</div>
+        `;
+        actContainer.appendChild(div);
+      });
+
+      refreshIcons();
+    }
+
+    function confirmResetDemo() {
+      if (confirm('Adakah anda pasti mahu menetapkan semula seluruh data demo makmal?')) {
+        MakmalStore.resetDemo();
+        loadAdminDashboard();
+        MakmalStore.showToast('Data demo berjaya ditetapkan semula.');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', loadAdminDashboard);
+    window.addEventListener('sim_makmal_sync', loadAdminDashboard);
+  </script>
+</body>
+</html>

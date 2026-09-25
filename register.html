@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ms" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Akaun — Sistem Inventori & Peminjaman Makmal</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              primary: '#1B4D3E',
+              'primary-hover': '#246350',
+              'primary-dark': '#103227',
+              mint: '#4EAE85',
+              'mint-light': '#68C49D',
+              'mint-subtle': '#EAF4F0',
+            }
+          },
+          boxShadow: {
+            'subtle-card': '0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 14px rgba(0, 0, 0, 0.03)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .bg-topo-mesh {
+      background-color: #103227;
+      background-image: 
+        radial-gradient(ellipse at top right, rgba(78, 174, 133, 0.28) 0%, transparent 60%),
+        radial-gradient(ellipse at bottom left, rgba(27, 77, 62, 0.7) 0%, transparent 65%),
+        repeating-radial-gradient(circle at 100% 100%, transparent 0, transparent 18px, rgba(255, 255, 255, 0.04) 19px, transparent 20px);
+    }
+  </style>
+</head>
+<body class="bg-white font-sans text-gray-900 h-full antialiased flex flex-col md:flex-row">
+
+  <!-- LEFT COLUMN: BRANDING & INSTRUCTIONS (Full screen height) -->
+  <div class="md:w-5/12 lg:w-4/12 bg-topo-mesh p-8 sm:p-12 text-white flex flex-col justify-between relative min-h-[340px] md:h-full">
+    <div class="space-y-6">
+      <!-- Logo -->
+      <div class="flex items-center gap-3.5">
+        <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-brand-mint border border-white/15 shadow-inner">
+          <i data-lucide="flask-conical" stroke-width="2.5" class="w-7 h-7"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-2xl tracking-tight block leading-tight">SIM Makmal</span>
+          <span class="text-[11px] font-semibold text-brand-mint-light tracking-wider uppercase">Pendaftaran Akaun</span>
+        </div>
+      </div>
+
+      <div class="space-y-2 pt-2">
+        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight">Sertai Sistem Pengurusan Makmal</h2>
+        <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">
+          Daftarkan maklumat akaun anda untuk mengakses kemudahan semakan alatan sains, pinjaman radas makmal, atau pengurusan inventori harian.
+        </p>
+      </div>
+
+      <!-- Role Guidance -->
+      <div class="space-y-3 pt-2">
+        <div class="p-3.5 bg-white/5 rounded-2xl border border-white/10 space-y-1">
+          <span class="font-bold text-xs text-brand-mint flex items-center gap-1.5">
+            <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+            Akaun Murid (Siswa)
+          </span>
+          <p class="text-[11px] text-gray-300 leading-relaxed">Daftar untuk melihat inventori alatan sains terkini & menyemak rekod pinjaman aktif menggunakan NIS anda.</p>
+        </div>
+
+        <div class="p-3.5 bg-white/5 rounded-2xl border border-white/10 space-y-1">
+          <span class="font-bold text-xs text-brand-mint flex items-center gap-1.5">
+            <i data-lucide="shield-alert" class="w-4 h-4"></i>
+            Akaun Petugas Makmal
+          </span>
+          <p class="text-[11px] text-gray-300 leading-relaxed">Daftar untuk merekodkan peminjaman harian murid dan mengesahkan pemeriksaan alatan makmal semasa dipulangkan.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- School Footer -->
+    <div class="pt-8 mt-6 border-t border-white/10 text-xs text-gray-400 flex items-center justify-between">
+      <span>SMK Sains — Makmal Kimia, Biologi & Fizik</span>
+      <span class="font-mono text-[10px]">v1.0-PRO</span>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN: REGISTRATION FORM (Full screen height & scrollable) -->
+  <div class="flex-1 p-6 sm:p-12 lg:p-16 flex flex-col justify-between bg-white overflow-y-auto">
+    <div class="max-w-md w-full mx-auto my-auto space-y-6">
+
+        <div>
+          <h1 class="text-2xl font-extrabold tracking-tight text-gray-900">Daftar Akaun Baharu</h1>
+          <p class="text-xs text-gray-500 mt-1">Lengkapkan maklumat profil anda untuk memulakan.</p>
+        </div>
+
+        <!-- Role Toggle (Siswa vs Petugas) -->
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Jenis Pendaftaran *</label>
+          <div class="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-2xl">
+            <button type="button" onclick="setRegRole('Siswa')" id="btn-reg-Siswa" class="py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-white text-brand-primary shadow-xs">
+              <i data-lucide="graduation-cap" class="w-4 h-4 text-brand-mint"></i>
+              <span>Murid (Siswa)</span>
+            </button>
+            <button type="button" onclick="setRegRole('Petugas')" id="btn-reg-Petugas" class="py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 text-gray-600 hover:text-gray-900">
+              <i data-lucide="user-check" class="w-4 h-4"></i>
+              <span>Petugas Makmal</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Registration Form -->
+        <form id="register-form" onsubmit="handleRegisterSubmit(event)" class="space-y-4">
+
+          <!-- Dynamic Form: Siswa Fields -->
+          <div id="fields-siswa" class="space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Nombor Induk Siswa (NIS) *</label>
+                <input id="reg-nis" type="text" placeholder="Contoh: 2024007" class="w-full px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Tingkatan / Kelas *</label>
+                <input id="reg-class" type="text" placeholder="Contoh: 5 Sains 3" class="w-full px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Penuh Murid *</label>
+              <input id="reg-student-name" type="text" placeholder="Nama penuh seperti dalam kad pengenalan" class="w-full px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Nombor Telefon Murid / Penjaga</label>
+              <input id="reg-phone" type="text" placeholder="012-XXXXXXX" class="w-full px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+            </div>
+          </div>
+
+          <!-- Dynamic Form: Petugas Fields (Hidden by default) -->
+          <div id="fields-petugas" class="hidden space-y-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Penuh Pegawai *</label>
+              <input id="reg-officer-name" type="text" placeholder="Contoh: En. Wan Mohd Firdaus" class="w-full px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Pengguna (Username) *</label>
+                <input id="reg-username" type="text" placeholder="firdaus" class="w-full px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Makmal Ditugaskan *</label>
+                <input id="reg-lab" type="text" placeholder="Makmal Kimia / Biologi" class="w-full px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Emel Rasmi *</label>
+                <input id="reg-email" type="email" placeholder="firdaus@makmal.edu.my" class="w-full px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">No. Telefon</label>
+                <input id="reg-officer-phone" type="text" placeholder="013-XXXXXXX" class="w-full px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+              </div>
+            </div>
+          </div>
+
+          <!-- Password Fields (Shared) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Kata Laluan *</label>
+              <input id="reg-password" type="password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Sahkan Kata Laluan *</label>
+              <input id="reg-confirm-password" type="password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3 bg-brand-primary hover:bg-brand-primary-hover active:scale-[0.99] text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-brand-primary/20 flex items-center justify-center gap-2">
+            <i data-lucide="user-plus" class="w-4 h-4 text-brand-mint"></i>
+            <span>Daftar Akaun Sekarang</span>
+          </button>
+        </form>
+
+      </div>
+
+      <!-- Bottom Login Link -->
+      <div class="pt-6 border-t border-gray-100 text-center text-xs text-gray-500">
+        <span>Sudah mempunyai akaun?</span>
+        <a href="index.html" class="font-bold text-brand-primary hover:underline ml-1">Log Masuk di Sini</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="store.js"></script>
+
+  <script>
+    let currentRegRole = 'Siswa';
+
+    function refreshIcons() {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    }
+
+    function setRegRole(role) {
+      currentRegRole = role;
+
+      const btnSiswa = document.getElementById('btn-reg-Siswa');
+      const btnPetugas = document.getElementById('btn-reg-Petugas');
+      const fieldsSiswa = document.getElementById('fields-siswa');
+      const fieldsPetugas = document.getElementById('fields-petugas');
+
+      if (role === 'Siswa') {
+        btnSiswa.className = 'py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-white text-brand-primary shadow-xs';
+        btnPetugas.className = 'py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 text-gray-600 hover:text-gray-900';
+        fieldsSiswa.classList.remove('hidden');
+        fieldsPetugas.classList.add('hidden');
+      } else {
+        btnPetugas.className = 'py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-white text-brand-primary shadow-xs';
+        btnSiswa.className = 'py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 text-gray-600 hover:text-gray-900';
+        fieldsPetugas.classList.remove('hidden');
+        fieldsSiswa.classList.add('hidden');
+      }
+      refreshIcons();
+    }
+
+    function handleRegisterSubmit(e) {
+      e.preventDefault();
+
+      const pass = document.getElementById('reg-password').value;
+      const confirmPass = document.getElementById('reg-confirm-password').value;
+
+      if (pass !== confirmPass) {
+        MakmalStore.showToast('Kata laluan dan pengesahan kata laluan tidak sepadan!', 'error');
+        return;
+      }
+
+      try {
+        if (currentRegRole === 'Siswa') {
+          const nis = document.getElementById('reg-nis').value.trim();
+          const name = document.getElementById('reg-student-name').value.trim();
+          const studentClass = document.getElementById('reg-class').value.trim();
+          const phone = document.getElementById('reg-phone').value.trim();
+
+          if (!nis || !name || !studentClass) {
+            MakmalStore.showToast('Sila lengkapkan NIS, nama, dan kelas murid.', 'warning');
+            return;
+          }
+
+          MakmalStore.addStudent({
+            nis,
+            name,
+            class: studentClass,
+            phone: phone || '-'
+          });
+
+          MakmalStore.showToast(`Pendaftaran murid ${name} (NIS: ${nis}) berjaya!`, 'success');
+        } else {
+          const name = document.getElementById('reg-officer-name').value.trim();
+          const username = document.getElementById('reg-username').value.trim();
+          const labAssigned = document.getElementById('reg-lab').value.trim();
+          const email = document.getElementById('reg-email').value.trim();
+          const phone = document.getElementById('reg-officer-phone').value.trim();
+
+          if (!name || !username || !email) {
+            MakmalStore.showToast('Sila lengkapkan nama pegawai, nama pengguna, dan emel.', 'warning');
+            return;
+          }
+
+          MakmalStore.addOfficer({
+            name,
+            username,
+            role: 'Petugas',
+            labAssigned: labAssigned || 'Makmal Am',
+            email,
+            phone: phone || '-'
+          });
+
+          MakmalStore.showToast(`Pendaftaran petugas ${name} berjaya!`, 'success');
+        }
+
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1200);
+
+      } catch (err) {
+        MakmalStore.showToast(err.message, 'error');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      refreshIcons();
+    });
+  </script>
+</body>
+</html>

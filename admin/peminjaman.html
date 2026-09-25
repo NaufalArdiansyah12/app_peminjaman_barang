@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Peminjaman Alatan — Sistem Inventori & Peminjaman Makmal</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              primary: '#1B4D3E',
+              'primary-hover': '#246350',
+              'primary-dark': '#103227',
+              mint: '#4EAE85',
+              'mint-light': '#68C49D',
+              'mint-subtle': '#EAF4F0',
+            }
+          },
+          boxShadow: {
+            'subtle-card': '0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 14px rgba(0, 0, 0, 0.03)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .bg-topo-mesh {
+      background-color: #103227;
+      background-image: 
+        radial-gradient(ellipse at top right, rgba(78, 174, 133, 0.28) 0%, transparent 60%),
+        radial-gradient(ellipse at bottom left, rgba(27, 77, 62, 0.7) 0%, transparent 65%),
+        repeating-radial-gradient(circle at 100% 100%, transparent 0, transparent 18px, rgba(255, 255, 255, 0.04) 19px, transparent 20px);
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+
+    /* Print Stylesheet khusus untuk cetak resit fisik */
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #print-modal, #print-modal * {
+        visibility: visible !important;
+      }
+      #print-modal {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        background: white !important;
+        margin: 0 !important;
+        padding: 20px !important;
+        box-shadow: none !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[#EDEDED] font-sans text-gray-900 min-h-screen p-2 sm:p-4 md:p-6 flex items-center justify-center antialiased">
+
+  <!-- MAIN APP CONTAINER -->
+  <div class="w-full max-w-[1440px] bg-white rounded-[28px] border border-gray-200/90 shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[920px]">
+
+    <!-- MOBILE HEADER -->
+    <div class="lg:hidden flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-full bg-brand-primary flex items-center justify-center text-brand-mint">
+          <i data-lucide="flask-conical" stroke-width="2.5" class="w-5 h-5"></i>
+        </div>
+        <span class="font-extrabold text-xl tracking-tight text-gray-900">SIM Makmal</span>
+      </div>
+      <button id="mobile-menu-btn" type="button" class="p-2 rounded-full border border-gray-200 text-gray-700">
+        <i data-lucide="menu" stroke-width="2.5" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- MOBILE OVERLAY -->
+    <div id="mobile-overlay" class="fixed inset-0 z-40 bg-black/40 hidden lg:hidden"></div>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar" data-active="peminjaman"></aside>
+    <script src="sidebar.js"></script>
+
+    <!-- RIGHT MAIN WORKSPACE -->
+    <div class="flex-1 flex flex-col bg-[#F6F7F9] min-w-0 overflow-y-auto">
+
+      <!-- TOP HEADER -->
+      <header class="px-6 lg:px-8 py-4 bg-[#F6F7F9] flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-200/60 sticky top-0 z-30 backdrop-blur-md bg-opacity-95">
+        <div>
+          <h1 class="text-xl font-extrabold tracking-tight text-gray-900">Transaksi Peminjaman Alatan</h1>
+          <p class="text-xs text-gray-500 font-medium">Borang peminjaman alatan makmal, penyesuaian stok automatik, & cetakan resit</p>
+        </div>
+
+        <div class="flex items-center gap-3 self-end sm:self-auto">
+          <a href="dashboard.html" class="px-3.5 py-1.5 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold rounded-full border border-gray-200 shadow-xs flex items-center gap-1.5 transition-all">
+            <i data-lucide="arrow-left" stroke-width="2.5" class="w-3.5 h-3.5"></i>
+            <span>Kembali ke Papan Pemuka</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- FORM CONTENT -->
+      <main class="p-6 lg:p-8 space-y-8 max-w-5xl">
+
+        <!-- BORANG PEMINJAMAN UTAMA -->
+        <form id="loan-form" onsubmit="handleFormSubmit(event)" class="bg-white rounded-2xl border border-gray-100 shadow-subtle-card p-6 sm:p-8 space-y-6">
+
+          <!-- Header Form -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-gray-100">
+            <div>
+              <h2 class="text-base font-extrabold text-gray-900">Daftar Peminjaman Baru</h2>
+              <p class="text-xs text-gray-400 mt-0.5">Sila lengkapkan maklumat murid dan alatan yang ingin dipinjam.</p>
+            </div>
+            <div class="text-right">
+              <span class="text-[11px] font-mono text-gray-400">ID Transaksi Dijana:</span>
+              <div class="text-xs font-mono font-bold text-brand-primary" id="preview-trx-id">TRX-202409-XXX</div>
+            </div>
+          </div>
+
+          <!-- SEKSYEN 1: MAKLUMAT PEMINJAM (MURID) -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="user" class="w-3.5 h-3.5 text-brand-mint"></i>
+                <span>1. Maklumat Murid (Peminjam)</span>
+              </label>
+              <div class="text-[11px] text-gray-400">
+                Pilih murid contoh: 
+                <button type="button" onclick="fillStudent('2024001')" class="text-brand-primary font-bold hover:underline">Faiz</button> • 
+                <button type="button" onclick="fillStudent('2024002')" class="text-brand-primary font-bold hover:underline">Aisyah</button> • 
+                <button type="button" onclick="fillStudent('2024005')" class="text-brand-primary font-bold hover:underline">Kavitha</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <!-- NIS -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Nombor Induk Siswa (NIS) *</label>
+                <input id="input-nis" type="text" required placeholder="Contoh: 2024001" oninput="handleNisInput(this.value)"
+                  class="w-full px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary font-mono transition-all">
+              </div>
+
+              <!-- Nama Murid -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Penuh Murid *</label>
+                <input id="input-name" type="text" required placeholder="Masukkan nama murid"
+                  class="w-full px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all">
+              </div>
+
+              <!-- Tingkatan / Kelas -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Tingkatan / Kelas *</label>
+                <input id="input-class" type="text" required placeholder="Contoh: 5 Sains 1"
+                  class="w-full px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all">
+              </div>
+            </div>
+          </div>
+
+          <!-- SEKSYEN 2: SESI AMALI & TARIKH -->
+          <div class="space-y-3 pt-2">
+            <label class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="calendar" class="w-3.5 h-3.5 text-brand-mint"></i>
+              <span>2. Tarikh & Tujuan Praktikum</span>
+            </label>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <!-- Tarikh Pinjam -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Tarikh Pinjam</label>
+                <input id="input-borrow-date" type="date" required readonly
+                  class="w-full px-3.5 py-2.5 bg-gray-100 rounded-xl border border-gray-200 text-xs text-gray-600 font-mono">
+              </div>
+
+              <!-- Tarikh Sasaran Pemulangan -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Tarikh Sasaran Pemulangan *</label>
+                <input id="input-target-date" type="date" required
+                  class="w-full px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary font-mono transition-all">
+              </div>
+
+              <!-- Tujuan Praktikum -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Tujuan / Subjek Amali *</label>
+                <input id="input-purpose" type="text" required placeholder="Contoh: Eksperimen Titrasi Kimia"
+                  class="w-full px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all">
+              </div>
+            </div>
+          </div>
+
+          <!-- SEKSYEN 3: PEMILIHAN ALATAN (MULTI-ITEM) -->
+          <div class="space-y-3 pt-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="package" class="w-3.5 h-3.5 text-brand-mint"></i>
+                <span>3. Senarai Alatan Makmal Yang Dipinjam</span>
+              </label>
+              <button type="button" onclick="addItemRow()" class="px-3 py-1 bg-brand-mint-subtle hover:bg-brand-mint/20 text-brand-primary text-xs font-bold rounded-lg flex items-center gap-1 transition-all">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                <span>Tambah Alatan</span>
+              </button>
+            </div>
+
+            <!-- Items Container -->
+            <div id="items-container" class="space-y-3">
+              <!-- Baris item dinamis akan dirender di sini -->
+            </div>
+          </div>
+
+          <!-- SEKSYEN 4: BUTANG PENGESAHAN -->
+          <div class="pt-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="text-xs text-gray-500">
+              <span class="font-semibold text-gray-700" id="total-items-summary">Jumlah Alatan: 0 unit</span>
+              <p class="text-[11px] text-gray-400 mt-0.5">Stok inventori akan dikurangkan sebaik sahaja transaksi disahkan.</p>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <button type="reset" class="px-5 py-2.5 text-xs font-semibold text-gray-600 hover:text-gray-900 rounded-xl hover:bg-gray-50 transition-all">
+                Kosongkan Borang
+              </button>
+              <button type="submit" class="px-6 py-2.5 bg-brand-primary hover:bg-brand-primary-hover active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-brand-primary/20 flex items-center gap-2">
+                <i data-lucide="printer" class="w-4 h-4 text-brand-mint"></i>
+                <span>Sahkan & Cetak Resit</span>
+              </button>
+            </div>
+          </div>
+
+        </form>
+
+        <!-- SEKSYEN TRANSAKSI PEMINJAMAN TERKINI -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-subtle-card p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-extrabold text-gray-900">Rekod Peminjaman Terkini</h2>
+              <p class="text-xs text-gray-400">Senarai pinjaman aktif yang baru didaftarkan ke dalam sistem</p>
+            </div>
+            <a href="pengembalian.html" class="text-xs font-bold text-brand-primary hover:underline flex items-center gap-1">
+              <span>Ke Halaman Pengembalian</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="border-b border-gray-100 text-gray-400 font-semibold uppercase tracking-wider text-[10px]">
+                  <th class="pb-2.5">No. Transaksi</th>
+                  <th class="pb-2.5">Peminjam</th>
+                  <th class="pb-2.5">Alatan Dipinjam</th>
+                  <th class="pb-2.5">Tarikh Sasaran</th>
+                  <th class="pb-2.5">Status</th>
+                  <th class="pb-2.5 text-right">Tindakan</th>
+                </tr>
+              </thead>
+              <tbody id="recent-loans-tbody" class="divide-y divide-gray-50">
+                <!-- Generated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL CETAK RESIT PEMINJAMAN (PRINT-READY SLIP)             -->
+  <!-- ============================================================ -->
+  <div id="receipt-modal-overlay" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl shadow-2xl border border-gray-200 max-w-xl w-full p-6 sm:p-8 space-y-6 relative animate-in fade-in zoom-in duration-200" id="print-modal">
+      
+      <!-- Modal Action Buttons (Disembunyikan semasa cetakan fizikal) -->
+      <div class="flex items-center justify-between no-print border-b border-gray-100 pb-3">
+        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Pratonton Resit Makmal</span>
+        <div class="flex items-center gap-2">
+          <button onclick="window.print()" class="px-4 py-1.5 bg-brand-primary hover:bg-brand-primary-hover active:scale-95 text-white text-xs font-bold rounded-full flex items-center gap-1.5 shadow-sm transition-all">
+            <i data-lucide="printer" class="w-3.5 h-3.5 text-brand-mint"></i>
+            <span>Cetak Resit</span>
+          </button>
+          <button onclick="closeReceiptModal()" class="p-1.5 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- KANDUNGAN RESIT FIZIKAL (KOP RASMI MAKMAL) -->
+      <div class="space-y-5 text-gray-900 font-sans" id="receipt-content">
+        <!-- Kop Sekolah -->
+        <div class="text-center border-b-2 border-gray-800 pb-4">
+          <div class="flex items-center justify-center gap-2 mb-1">
+            <div class="w-7 h-7 rounded-lg bg-brand-primary flex items-center justify-center text-brand-mint">
+              <i data-lucide="flask-conical" class="w-4 h-4"></i>
+            </div>
+            <h3 class="font-extrabold text-sm sm:text-base uppercase tracking-tight text-gray-900">Makmal Sains & Teknologi Sekolah</h3>
+          </div>
+          <p class="text-[11px] text-gray-600">Sistem Inventori & Pengurusan Alatan Makmal Terpadu</p>
+          <p class="text-[10px] text-gray-400 font-mono">RESIT PEMINJAMAN ALATAN AMALI (SALINAN PEMINJAM)</p>
+        </div>
+
+        <!-- Maklumat Resit & Murid -->
+        <div class="grid grid-cols-2 gap-3 text-xs bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+          <div>
+            <span class="text-gray-400 text-[10px] uppercase font-bold block">No. Transaksi</span>
+            <span class="font-mono font-bold text-brand-primary text-xs" id="receipt-trx-id">-</span>
+          </div>
+          <div class="text-right">
+            <span class="text-gray-400 text-[10px] uppercase font-bold block">Tarikh Pinjam</span>
+            <span class="font-mono font-semibold" id="receipt-borrow-date">-</span>
+          </div>
+          <div>
+            <span class="text-gray-400 text-[10px] uppercase font-bold block">Nama Peminjam</span>
+            <span class="font-bold text-gray-900" id="receipt-student-name">-</span>
+            <div class="text-[11px] text-gray-500 font-medium">NIS: <span id="receipt-student-nis">-</span></div>
+          </div>
+          <div class="text-right">
+            <span class="text-gray-400 text-[10px] uppercase font-bold block">Tingkatan / Kelas</span>
+            <span class="font-bold text-gray-900" id="receipt-student-class">-</span>
+          </div>
+          <div class="col-span-2 pt-1 border-t border-gray-200 flex justify-between items-center">
+            <span class="text-gray-500 text-[11px]">Tarikh Sasaran Pemulangan:</span>
+            <span class="font-mono font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 text-xs" id="receipt-target-date">-</span>
+          </div>
+        </div>
+
+        <!-- Jadual Alatan -->
+        <div>
+          <table class="w-full text-left text-xs border border-gray-200">
+            <thead class="bg-gray-100 text-gray-700 uppercase font-bold text-[10px]">
+              <tr>
+                <th class="p-2 border-b">No</th>
+                <th class="p-2 border-b">Nama Alatan Makmal</th>
+                <th class="p-2 border-b text-center">Kuantiti</th>
+                <th class="p-2 border-b text-center">Kondisi Serahan</th>
+              </tr>
+            </thead>
+            <tbody id="receipt-items-tbody" class="divide-y divide-gray-100 font-medium">
+              <!-- Item rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Syarat & Tanggungjawab -->
+        <div class="text-[10px] text-gray-500 leading-relaxed bg-gray-50/70 p-3 rounded-xl border border-gray-100">
+          <span class="font-bold text-gray-700 block mb-1">Perakuan & Terma Peminjaman:</span>
+          <p>1. Saya mengaku menerima peralatan di atas dalam keadaan baik, sempurna, dan selamat untuk digunakan.</p>
+          <p>2. Saya berjanji akan memulangkan peralatan selewat-lewatnya pada tarikh sasaran yang dinyatakan.</p>
+          <p>3. Sekiranya berlaku kehilangan atau kerosakan akibat kecuaian, saya bersedia menggantikan mengikut peraturan makmal.</p>
+        </div>
+
+        <!-- Ruangan Tandatangan -->
+        <div class="grid grid-cols-2 gap-8 pt-4 text-center text-xs">
+          <div>
+            <div class="h-14 border-b border-dashed border-gray-400"></div>
+            <div class="mt-1.5 font-bold text-gray-800" id="receipt-sign-student">Tandatangan Murid</div>
+            <div class="text-[10px] text-gray-400">Peminjam Alatan</div>
+          </div>
+          <div>
+            <div class="h-14 border-b border-dashed border-gray-400"></div>
+            <div class="mt-1.5 font-bold text-gray-800">En. Naufal</div>
+            <div class="text-[10px] text-gray-400">Pegawai Makmal Sains</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared Store Script -->
+  <script src="../store.js"></script>
+
+  <script>
+    function refreshIcons() {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    }
+
+    // Toggle Mobile
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileCloseBtn = document.getElementById('mobile-close-btn');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    const sidebar = document.getElementById('sidebar');
+
+    function toggleMobile() {
+      sidebar.classList.toggle('-translate-x-full');
+      mobileOverlay.classList.toggle('hidden');
+    }
+    if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMobile);
+    if (mobileCloseBtn) mobileCloseBtn.addEventListener('click', toggleMobile);
+    if (mobileOverlay) mobileOverlay.addEventListener('click', toggleMobile);
+
+    // Initial Date Values
+    const todayStr = new Date().toISOString().split('T')[0];
+    document.getElementById('input-borrow-date').value = todayStr;
+
+    // Default target return date: +3 hari
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + 3);
+    document.getElementById('input-target-date').value = targetDate.toISOString().split('T')[0];
+
+    // Auto-fill student data by NIS
+    function handleNisInput(nis) {
+      const student = MakmalStore.getStudentByNis(nis);
+      if (student) {
+        document.getElementById('input-name').value = student.name;
+        document.getElementById('input-class').value = student.class;
+      }
+    }
+
+    function fillStudent(nis) {
+      document.getElementById('input-nis').value = nis;
+      handleNisInput(nis);
+    }
+
+    // Dynamic Item Row Management
+    let rowCounter = 0;
+
+    function addItemRow(selectedItemId = '', qty = 1) {
+      rowCounter++;
+      const container = document.getElementById('items-container');
+      const inventory = MakmalStore.getInventory();
+
+      const row = document.createElement('div');
+      row.id = `item-row-${rowCounter}`;
+      row.className = 'flex flex-col sm:flex-row items-center gap-3 p-3 bg-gray-50/80 rounded-xl border border-gray-200/80 transition-all';
+
+      // Bina options
+      let optionsHtml = '<option value="">-- Pilih Alatan Makmal --</option>';
+      inventory.forEach(item => {
+        const isSelected = item.id === selectedItemId ? 'selected' : '';
+        const disabled = item.availableQty <= 0 ? 'disabled' : '';
+        optionsHtml += `
+          <option value="${item.id}" data-available="${item.availableQty}" ${isSelected} ${disabled}>
+            [${item.category}] ${item.name} (${item.availableQty > 0 ? 'Stok Tersedia: ' + item.availableQty : 'HABIS'})
+          </option>
+        `;
+      });
+
+      row.innerHTML = `
+        <div class="flex-1 w-full">
+          <select required onchange="handleItemSelect(${rowCounter}, this.value)" class="w-full px-3 py-2 bg-white rounded-lg border border-gray-200 text-xs focus:ring-2 focus:ring-brand-primary focus:outline-none">
+            ${optionsHtml}
+          </select>
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[11px] font-semibold text-gray-500 whitespace-nowrap">Kuantiti:</span>
+            <input type="number" id="qty-input-${rowCounter}" min="1" max="10" value="${qty}" required oninput="updateSummaryTotal()"
+              class="w-20 px-2.5 py-2 bg-white rounded-lg border border-gray-200 text-xs font-mono text-center focus:ring-2 focus:ring-brand-primary focus:outline-none">
+          </div>
+          <span class="text-[10px] text-gray-400 font-mono w-16 text-center" id="avail-badge-${rowCounter}">-</span>
+          <button type="button" onclick="removeItemRow(${rowCounter})" class="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all" title="Padam baris">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      `;
+
+      container.appendChild(row);
+      refreshIcons();
+
+      if (selectedItemId) {
+        handleItemSelect(rowCounter, selectedItemId);
+      }
+      updateSummaryTotal();
+    }
+
+    function removeItemRow(id) {
+      const container = document.getElementById('items-container');
+      if (container.children.length <= 1) {
+        MakmalStore.showToast('Sekurang-kurangnya satu alatan perlu dipinjam.', 'warning');
+        return;
+      }
+      const row = document.getElementById(`item-row-${id}`);
+      if (row) row.remove();
+      updateSummaryTotal();
+    }
+
+    function handleItemSelect(rowId, itemId) {
+      const item = MakmalStore.getItemById(itemId);
+      const qtyInput = document.getElementById(`qty-input-${rowId}`);
+      const availBadge = document.getElementById(`avail-badge-${rowId}`);
+
+      if (item) {
+        qtyInput.max = item.availableQty;
+        if (parseInt(qtyInput.value) > item.availableQty) {
+          qtyInput.value = item.availableQty;
+        }
+        availBadge.textContent = `Baki: ${item.availableQty}`;
+        availBadge.className = 'text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-1 rounded';
+      } else {
+        availBadge.textContent = '-';
+      }
+      updateSummaryTotal();
+    }
+
+    function updateSummaryTotal() {
+      const rows = document.querySelectorAll('#items-container > div');
+      let total = 0;
+      rows.forEach(r => {
+        const qInput = r.querySelector('input[type="number"]');
+        if (qInput && qInput.value) {
+          total += parseInt(qInput.value, 10) || 0;
+        }
+      });
+      document.getElementById('total-items-summary').textContent = `Jumlah Alatan: ${total} unit (${rows.length} jenis)`;
+    }
+
+    // Submit Form Peminjaman
+    function handleFormSubmit(e) {
+      e.preventDefault();
+
+      const nis = document.getElementById('input-nis').value.trim();
+      const studentName = document.getElementById('input-name').value.trim();
+      const studentClass = document.getElementById('input-class').value.trim();
+      const targetReturnDate = document.getElementById('input-target-date').value;
+      const purpose = document.getElementById('input-purpose').value.trim();
+
+      // Kumpul baris alatan
+      const rows = document.querySelectorAll('#items-container > div');
+      const items = [];
+      const itemIdsSeen = new Set();
+
+      for (const r of rows) {
+        const select = r.querySelector('select');
+        const qtyInput = r.querySelector('input[type="number"]');
+        const itemId = select ? select.value : '';
+        const qty = qtyInput ? parseInt(qtyInput.value, 10) : 0;
+
+        if (!itemId) {
+          MakmalStore.showToast('Sila pilih alatan makmal untuk setiap baris.', 'error');
+          return;
+        }
+
+        if (itemIdsSeen.has(itemId)) {
+          MakmalStore.showToast('Alatan yang sama tidak boleh dipilih lebih daripada sekali dalam satu slip.', 'warning');
+          return;
+        }
+        itemIdsSeen.add(itemId);
+
+        const inv = MakmalStore.getItemById(itemId);
+        if (!inv || inv.availableQty < qty) {
+          MakmalStore.showToast(`Stok bagi ${inv ? inv.name : 'alatan'} tidak mencukupi!`, 'error');
+          return;
+        }
+
+        items.push({ itemId, name: inv.name, qty });
+      }
+
+      if (items.length === 0) {
+        MakmalStore.showToast('Sila masukkan sekurang-kurangnya 1 alatan makmal.', 'error');
+        return;
+      }
+
+      try {
+        const newLoan = MakmalStore.createLoan({
+          nis,
+          studentName,
+          studentClass,
+          purpose,
+          targetReturnDate,
+          items,
+          notes: 'Dipinjam untuk amali makmal.'
+        });
+
+        MakmalStore.showToast(`Peminjaman ${newLoan.id} berjaya didaftarkan!`, 'success');
+
+        // Buka Slip Resit Cetakan
+        openReceiptModal(newLoan);
+
+        // Reset borang ke keadaan awal
+        document.getElementById('loan-form').reset();
+        document.getElementById('input-borrow-date').value = todayStr;
+        document.getElementById('input-target-date').value = targetDate.toISOString().split('T')[0];
+        document.getElementById('items-container').innerHTML = '';
+        addItemRow(); // Tambah satu baris kosong
+
+        renderRecentLoans();
+        loadSidebarData();
+      } catch (err) {
+        MakmalStore.showToast(err.message, 'error');
+      }
+    }
+
+    // Buka Modal Resit
+    function openReceiptModal(loan) {
+      document.getElementById('receipt-trx-id').textContent = loan.id;
+      document.getElementById('receipt-borrow-date').textContent = MakmalStore.formatDate(loan.borrowDate);
+      document.getElementById('receipt-student-name').textContent = loan.studentName;
+      document.getElementById('receipt-student-nis').textContent = loan.nis;
+      document.getElementById('receipt-student-class').textContent = loan.studentClass;
+      document.getElementById('receipt-target-date').textContent = MakmalStore.formatDate(loan.targetReturnDate);
+      document.getElementById('receipt-sign-student').textContent = loan.studentName;
+
+      const tbody = document.getElementById('receipt-items-tbody');
+      tbody.innerHTML = '';
+      loan.items.forEach((item, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="p-2 border-b font-mono">${idx + 1}</td>
+          <td class="p-2 border-b">
+            <div class="font-bold text-gray-900">${item.name}</div>
+            <div class="text-[10px] text-gray-400 font-mono">${item.itemId}</div>
+          </td>
+          <td class="p-2 border-b text-center font-mono font-bold">${item.qty} Unit</td>
+          <td class="p-2 border-b text-center text-emerald-700 font-semibold text-[10px]">Baik & Berfungsi</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('receipt-modal-overlay').classList.remove('hidden');
+      refreshIcons();
+    }
+
+    function closeReceiptModal() {
+      document.getElementById('receipt-modal-overlay').classList.add('hidden');
+    }
+
+    // Render Pinjaman Terkini di bahagian bawah
+    function renderRecentLoans() {
+      const tbody = document.getElementById('recent-loans-tbody');
+      tbody.innerHTML = '';
+      const loans = MakmalStore.getLoans();
+
+      loans.slice(0, 6).forEach(loan => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-50/70 transition-colors';
+        const isOverdue = loan.status === 'overdue';
+        const isReturned = loan.status === 'returned';
+
+        tr.innerHTML = `
+          <td class="py-3 pr-2 font-mono font-bold text-gray-900">${loan.id}</td>
+          <td class="py-3 pr-2">
+            <div class="font-bold text-gray-800">${loan.studentName}</div>
+            <div class="text-gray-400 text-[10px]">NIS: ${loan.nis} (${loan.studentClass})</div>
+          </td>
+          <td class="py-3 pr-2 text-gray-600">
+            ${loan.items.map(i => `${i.qty}x ${i.name}`).join(', ')}
+          </td>
+          <td class="py-3 pr-2 font-mono text-gray-600">
+            ${MakmalStore.formatDate(loan.targetReturnDate)}
+          </td>
+          <td class="py-3 pr-2">
+            ${
+              isReturned
+                ? `<span class="px-2.5 py-0.5 bg-gray-100 text-gray-600 rounded-full font-bold text-[10px]">Selesai</span>`
+                : isOverdue
+                ? `<span class="px-2.5 py-0.5 bg-rose-50 text-rose-700 rounded-full font-bold text-[10px] border border-rose-200">Lewat</span>`
+                : `<span class="px-2.5 py-0.5 bg-emerald-50 text-brand-primary rounded-full font-bold text-[10px] border border-emerald-100">Aktif</span>`
+            }
+          </td>
+          <td class="py-3 text-right">
+            <button onclick='openReceiptModal(${JSON.stringify(loan)})' class="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 active:scale-95 text-gray-700 text-[11px] font-semibold rounded-lg transition-all inline-flex items-center gap-1">
+              <i data-lucide="printer" class="w-3 h-3"></i>
+              <span>Resit</span>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      refreshIcons();
+    }
+
+    function loadSidebarData() {
+      const metrics = MakmalStore.getMetrics();
+      const sidebarCount = document.getElementById('sidebar-count');
+      if (sidebarCount) sidebarCount.textContent = metrics.activeLoansCount;
+
+      const badgeOverdue = document.getElementById('badge-overdue-sidebar');
+      if (badgeOverdue) {
+        badgeOverdue.textContent = metrics.overdueLoansCount + ' lewat';
+        if (metrics.overdueLoansCount > 0) badgeOverdue.classList.remove('hidden');
+        else badgeOverdue.classList.add('hidden');
+      }
+
+      // Preview next trx id
+      const loans = MakmalStore.getLoans();
+      const now = new Date();
+      const yearMonth = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
+      document.getElementById('preview-trx-id').textContent = `TRX-${yearMonth}-${String(loans.length + 1).padStart(3, '0')}`;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      addItemRow('INV-KIM-001', 2);
+      renderRecentLoans();
+      loadSidebarData();
+    });
+
+    window.addEventListener('sim_makmal_sync', () => {
+      renderRecentLoans();
+      loadSidebarData();
+    });
+  </script>
+</body>
+</html>

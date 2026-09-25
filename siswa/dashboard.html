@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Semakan Siswa — Sistem Inventori & Peminjaman Makmal</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              primary: '#1B4D3E',
+              'primary-hover': '#246350',
+              'primary-dark': '#103227',
+              mint: '#4EAE85',
+              'mint-light': '#68C49D',
+              'mint-subtle': '#EAF4F0',
+            }
+          },
+          boxShadow: {
+            'subtle-card': '0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 14px rgba(0, 0, 0, 0.03)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .bg-topo-mesh {
+      background-color: #103227;
+      background-image: 
+        radial-gradient(ellipse at top right, rgba(78, 174, 133, 0.28) 0%, transparent 60%),
+        radial-gradient(ellipse at bottom left, rgba(27, 77, 62, 0.7) 0%, transparent 65%),
+        repeating-radial-gradient(circle at 100% 100%, transparent 0, transparent 18px, rgba(255, 255, 255, 0.04) 19px, transparent 20px);
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-[#EDEDED] font-sans text-gray-900 min-h-screen p-2 sm:p-4 md:p-6 flex items-center justify-center antialiased">
+
+  <!-- MAIN CONTAINER -->
+  <div class="w-full max-w-[1440px] bg-white rounded-[28px] border border-gray-200/90 shadow-2xl overflow-hidden flex flex-col min-h-[920px]">
+
+    <!-- TOP PORTAL HEADER -->
+    <header class="bg-brand-primary text-white px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-0 z-30 shadow-md">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-brand-mint border border-white/15 shadow-sm">
+          <i data-lucide="flask-conical" stroke-width="2.5" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-extrabold text-xl tracking-tight leading-tight">SIM Makmal</span>
+            <span class="text-[9px] font-bold bg-brand-mint text-brand-primary-dark px-2 py-0.5 rounded-full uppercase tracking-wider">Portal Siswa</span>
+          </div>
+          <p class="text-[11px] text-brand-mint-light font-medium">Semakan Kendiri Pinjaman Alatan & Katalog Inventori</p>
+        </div>
+      </div>
+
+      <!-- Quick Role Switcher & Login -->
+      <div class="flex items-center gap-3">
+        <div class="p-1 bg-white/10 rounded-xl flex items-center text-xs font-semibold border border-white/15">
+          <span class="px-3 py-1 bg-white text-brand-primary rounded-lg shadow-xs">Siswa</span>
+          <a href="../petugas/dashboard.html" class="px-3 py-1 text-emerald-100 hover:text-white transition-all">Petugas</a>
+          <a href="../admin/dashboard.html" class="px-3 py-1 text-emerald-100 hover:text-white transition-all">Admin</a>
+        </div>
+        <a href="../index.html" class="flex items-center gap-1.5 px-3.5 py-2 bg-brand-mint hover:bg-brand-mint-light active:scale-95 text-brand-primary-dark rounded-xl text-xs font-bold transition-all shadow-xs">
+          <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Log Masuk</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- SCROLLABLE WORKSPACE -->
+    <div class="flex-1 bg-[#F6F7F9] p-6 lg:p-8 space-y-8 overflow-y-auto">
+
+      <!-- HERO SECTION: SEMAKAN KENDIRI PINJAMAN BERASASKAN NIS -->
+      <section class="bg-topo-mesh rounded-3xl p-6 sm:p-9 text-white shadow-xl relative overflow-hidden">
+        <div class="max-w-2xl space-y-2">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full text-brand-mint text-xs font-bold border border-white/15">
+            <i data-lucide="search" class="w-3.5 h-3.5"></i>
+            <span>Semakan Kendiri Alatan Makmal</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Periksa Status Pinjaman Alatan Anda</h1>
+          <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">
+            Masukkan Nombor Induk Siswa (NIS) untuk melihat peralatan praktikum yang sedang dipinjam, batas tarikh pemulangan, atau semak rekod transaksi terdahulu.
+          </p>
+        </div>
+
+        <!-- Search Box -->
+        <div class="mt-6 flex flex-col sm:flex-row gap-3 max-w-xl">
+          <div class="relative flex-1">
+            <i data-lucide="user" class="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+            <input id="input-search-nis" type="text" placeholder="Masukkan NIS anda (Cth: 2024001)" onkeydown="if(event.key==='Enter') doSearchNis()"
+              class="w-full pl-11 pr-4 py-3 rounded-full bg-white text-xs sm:text-sm text-gray-900 border-0 focus:outline-none focus:ring-2 focus:ring-brand-mint placeholder-gray-400 font-mono shadow-sm">
+          </div>
+          <button onclick="doSearchNis()" class="px-6 py-3 bg-brand-mint hover:bg-brand-mint-light active:scale-95 text-brand-primary-dark text-xs sm:text-sm font-bold rounded-full transition-all whitespace-nowrap shadow-md">
+            Periksa Sekarang
+          </button>
+        </div>
+
+        <!-- Quick Demo NIS Chips -->
+        <div class="mt-4 flex flex-wrap items-center gap-2 text-[11px] text-emerald-100/90">
+          <span>Cuba NIS contoh:</span>
+          <button onclick="quickCheck('2024001')" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-full font-mono font-semibold border border-white/15 transition-all">2024001 (Ahmad Faiz - Lewat)</button>
+          <button onclick="quickCheck('2024002')" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-full font-mono font-semibold border border-white/15 transition-all">2024002 (Nur Aisyah - Aktif)</button>
+          <button onclick="quickCheck('2024003')" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-full font-mono font-semibold border border-white/15 transition-all">2024003 (Chong Wei Lun - Aktif)</button>
+          <button onclick="quickCheck('2024004')" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-full font-mono font-semibold border border-white/15 transition-all">2024004 (Siti Sarah - Selesai)</button>
+        </div>
+      </section>
+
+      <!-- RESULT CONTAINER (SEMAKAN PINJAMAN SISWA) -->
+      <section id="nis-result-section" class="hidden animate-in fade-in zoom-in duration-200">
+        <!-- JS rendered result cards -->
+      </section>
+
+      <!-- SECTION: KATALOG INVENTORI ALATAN MAKMAL (REAL-TIME READ-ONLY) -->
+      <section class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg sm:text-xl font-extrabold tracking-tight text-gray-900">Katalog Ketersediaan Alatan Makmal</h2>
+            <p class="text-xs text-gray-500 font-medium">Semak baki stok sedia ada dan lokasi rak penyimpanan alatan secara masa nyata (real-time)</p>
+          </div>
+
+          <!-- Search & Filter Category -->
+          <div class="flex items-center gap-2">
+            <select id="catalog-category-filter" onchange="renderStudentCatalog()" class="px-3 py-2 bg-white text-xs font-semibold text-gray-700 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-primary shadow-xs">
+              <option value="ALL">Semua Bidang Sains</option>
+              <option value="Kimia">Kimia</option>
+              <option value="Biologi">Biologi</option>
+              <option value="Fizik">Fizik</option>
+              <option value="Umum">Umum</option>
+            </select>
+            <div class="relative w-44 sm:w-60">
+              <i data-lucide="search" class="w-3.5 h-3.5 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+              <input id="catalog-search" type="text" placeholder="Cari nama alatan..." oninput="handleCatalogSearch(this.value)"
+                class="w-full pl-9 pr-3 py-2 bg-white text-xs rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-primary shadow-xs">
+            </div>
+          </div>
+        </div>
+
+        <!-- Cards Grid -->
+        <div id="student-catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <!-- Rendered via JS -->
+        </div>
+      </section>
+
+      <!-- SECTION: PANDUAN & PERATURAN PEMINJAMAN MAKMAL -->
+      <section class="bg-white rounded-2xl border border-gray-100 shadow-subtle-card p-6 space-y-3">
+        <div class="flex items-center gap-2 font-bold text-sm text-gray-900">
+          <i data-lucide="book-open" class="w-4 h-4 text-brand-mint"></i>
+          <span>Panduan & Tanggungjawab Peminjam Alatan Makmal</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-gray-600">
+          <div class="p-3.5 bg-gray-50 rounded-xl space-y-1">
+            <span class="font-bold text-gray-800 block">1. Tempoh Maksimum</span>
+            <p class="text-[11px] leading-relaxed">Pinjaman amali biasa dihadkan kepada maksimum 3 hari bekerja. Sila pulangkan mengikut tarikh sasaran pada resit.</p>
+          </div>
+          <div class="p-3.5 bg-gray-50 rounded-xl space-y-1">
+            <span class="font-bold text-gray-800 block">2. Penjagaan Kebersihan</span>
+            <p class="text-[11px] leading-relaxed">Peralatan kaca (bikar, tabung uji, buret) hendaklah dibilas bersih dengan air suling dan dikeringkan sebelum dipulangkan.</p>
+          </div>
+          <div class="p-3.5 bg-gray-50 rounded-xl space-y-1">
+            <span class="font-bold text-gray-800 block">3. Laporan Kerosakan</span>
+            <p class="text-[11px] leading-relaxed">Sekiranya berlaku sebarang keretakan atau radas tidak berfungsi, maklumkan segera kepada Petugas Makmal semasa pemulangan.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="../store.js"></script>
+
+  <script>
+    let currentCatalogSearch = '';
+
+    function refreshIcons() {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    }
+
+    // Semakan Kendiri NIS
+    function quickCheck(nis) {
+      document.getElementById('input-search-nis').value = nis;
+      doSearchNis();
+    }
+
+    function doSearchNis() {
+      const nisInput = document.getElementById('input-search-nis').value.trim();
+      const section = document.getElementById('nis-result-section');
+
+      if (!nisInput) {
+        MakmalStore.showToast('Sila masukkan Nombor Induk Siswa (NIS).', 'warning');
+        return;
+      }
+
+      const allLoans = MakmalStore.getLoans();
+      const student = MakmalStore.getStudentByNis(nisInput);
+      const studentLoans = allLoans.filter(l => l.nis.toLowerCase() === nisInput.toLowerCase());
+
+      section.classList.remove('hidden');
+
+      if (studentLoans.length === 0) {
+        section.innerHTML = `
+          <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200/80 shadow-subtle-card text-center space-y-2">
+            <div class="w-12 h-12 rounded-full bg-emerald-50 text-brand-mint flex items-center justify-center mx-auto">
+              <i data-lucide="check-circle" class="w-6 h-6"></i>
+            </div>
+            <h3 class="font-extrabold text-base text-gray-900">Tiada Rekod Pinjaman Aktif</h3>
+            <p class="text-xs text-gray-500 max-w-md mx-auto">
+              Murid dengan NIS <span class="font-mono font-bold text-gray-800">${nisInput}</span> ${student ? `(${student.name})` : ''} tidak mempunyai sebarang alatan makmal yang belum dipulangkan.
+            </p>
+          </div>
+        `;
+        refreshIcons();
+        return;
+      }
+
+      // Terdapat pinjaman
+      const activeOrOverdue = studentLoans.filter(l => l.status === 'active' || l.status === 'overdue');
+      const hasOverdue = activeOrOverdue.some(l => l.status === 'overdue');
+
+      let cardsHtml = '';
+      studentLoans.forEach(loan => {
+        const isOverdue = loan.status === 'overdue';
+        const isReturned = loan.status === 'returned';
+
+        let itemsHtml = loan.items.map(item => `
+          <div class="flex items-center justify-between text-xs py-1.5 border-b border-gray-100 last:border-0">
+            <span class="font-bold text-gray-800">${item.name}</span>
+            <span class="font-mono font-bold text-brand-primary bg-emerald-50 px-2 py-0.5 rounded text-[11px]">${item.qty} Unit</span>
+          </div>
+        `).join('');
+
+        cardsHtml += `
+          <div class="bg-white rounded-2xl border ${isOverdue ? 'border-rose-300 ring-2 ring-rose-100' : 'border-gray-200'} p-5 shadow-subtle-card space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
+              <div>
+                <span class="text-[10px] font-mono text-gray-400">No. Transaksi</span>
+                <div class="font-mono font-bold text-gray-900 text-sm">${loan.id}</div>
+              </div>
+              <div>
+                ${
+                  isOverdue
+                    ? `<span class="px-3 py-1 bg-rose-50 text-rose-700 rounded-full font-bold text-xs border border-rose-200 inline-flex items-center gap-1.5 animate-pulse">
+                        <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                        MELEPASI TARIKH SASARAN (LEWAT)
+                       </span>`
+                    : isReturned
+                    ? `<span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full font-bold text-xs inline-flex items-center gap-1.5">
+                        <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                        TELAH DIPULANGKAN
+                       </span>`
+                    : `<span class="px-3 py-1 bg-emerald-50 text-brand-primary rounded-full font-bold text-xs border border-emerald-100 inline-flex items-center gap-1.5">
+                        <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                        SEDANG DIPINJAM (AKTIF)
+                       </span>`
+                }
+              </div>
+            </div>
+
+            <!-- Details -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+              <div>
+                <span class="text-[10px] text-gray-400 block font-semibold uppercase">Tarikh Pinjam</span>
+                <span class="font-mono font-medium text-gray-700">${MakmalStore.formatDate(loan.borrowDate)}</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-gray-400 block font-semibold uppercase">Sasaran Pemulangan</span>
+                <span class="font-mono font-bold ${isOverdue ? 'text-rose-600' : 'text-gray-900'}">${MakmalStore.formatDate(loan.targetReturnDate)}</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-gray-400 block font-semibold uppercase">Tujuan Praktikum</span>
+                <span class="font-medium text-gray-700 truncate block">${loan.purpose}</span>
+              </div>
+            </div>
+
+            <!-- Alatan -->
+            <div class="bg-gray-50/80 p-3.5 rounded-xl border border-gray-100">
+              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-2">Senarai Peralatan:</span>
+              <div class="space-y-1">
+                ${itemsHtml}
+              </div>
+            </div>
+
+            ${
+              isOverdue
+                ? `<div class="p-3 bg-rose-50 rounded-xl text-rose-800 text-[11px] font-medium flex items-center gap-2">
+                    <i data-lucide="info" class="w-4 h-4 shrink-0 text-rose-600"></i>
+                    <span>Peringatan: Sila serahkan alatan di atas kepada Petugas Makmal dengan segera untuk mengelakkan penalti atau tindakan tatatertib.</span>
+                   </div>`
+                : ''
+            }
+          </div>
+        `;
+      });
+
+      const firstLoan = studentLoans[0];
+      section.innerHTML = `
+        <div class="bg-white rounded-3xl border border-gray-200 p-6 sm:p-7 shadow-subtle-card space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-4">
+            <div>
+              <span class="text-xs font-bold text-brand-mint uppercase tracking-wider">Hasil Semakan Kendiri</span>
+              <h3 class="text-lg font-extrabold text-gray-900">${firstLoan.studentName}</h3>
+              <p class="text-xs text-gray-500">NIS: <span class="font-mono font-bold">${firstLoan.nis}</span> • Tingkatan: <span class="font-bold">${firstLoan.studentClass}</span></p>
+            </div>
+            <div class="text-right text-xs">
+              <span class="text-gray-400 block">Jumlah Rekod Sirkulasi:</span>
+              <span class="font-mono font-bold text-brand-primary text-sm">${studentLoans.length} Transaksi</span>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            ${cardsHtml}
+          </div>
+        </div>
+      `;
+
+      refreshIcons();
+    }
+
+    // Render Student Catalog
+    function handleCatalogSearch(query) {
+      currentCatalogSearch = query.toLowerCase().trim();
+      renderStudentCatalog();
+    }
+
+    function renderStudentCatalog() {
+      const grid = document.getElementById('student-catalog-grid');
+      grid.innerHTML = '';
+
+      const categoryFilter = document.getElementById('catalog-category-filter').value;
+      let inventory = MakmalStore.getInventory();
+
+      if (categoryFilter !== 'ALL') {
+        inventory = inventory.filter(i => i.category === categoryFilter);
+      }
+
+      if (currentCatalogSearch) {
+        inventory = inventory.filter(i =>
+          i.name.toLowerCase().includes(currentCatalogSearch) ||
+          i.id.toLowerCase().includes(currentCatalogSearch) ||
+          i.location.toLowerCase().includes(currentCatalogSearch)
+        );
+      }
+
+      if (inventory.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 text-center text-gray-400">
+            <i data-lucide="package-search" class="w-8 h-8 mx-auto mb-2 text-gray-300"></i>
+            <p class="text-xs font-medium">Tiada alatan dijumpai sepadan dengan carian.</p>
+          </div>
+        `;
+        refreshIcons();
+        return;
+      }
+
+      inventory.forEach(item => {
+        const isAvailable = item.availableQty > 0;
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-gray-100 p-5 shadow-subtle-card flex flex-col justify-between hover:-translate-y-0.5 transition-transform duration-200 space-y-3';
+
+        card.innerHTML = `
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-0.5 bg-gray-100 text-gray-700 text-[10px] font-bold rounded-full">${item.category}</span>
+              <span class="text-[10px] font-mono text-gray-400">${item.id}</span>
+            </div>
+            <h4 class="font-bold text-xs sm:text-sm text-gray-900 leading-snug">${item.name}</h4>
+            <p class="text-[11px] text-gray-500 line-clamp-2">${item.specs || 'Peralatan amali makmal standard.'}</p>
+          </div>
+
+          <div class="pt-3 border-t border-gray-50 space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-400 text-[11px]">Lokasi Rak:</span>
+              <span class="font-semibold text-gray-700">${item.location}</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-400 text-[11px]">Baki Stok:</span>
+              ${
+                isAvailable
+                  ? `<span class="font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[11px]">${item.availableQty} ${item.unit || 'Unit'} Tersedia</span>`
+                  : `<span class="font-mono font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded text-[11px]">Habis Dipinjam</span>`
+              }
+            </div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+
+      refreshIcons();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderStudentCatalog();
+    });
+
+    window.addEventListener('sim_makmal_sync', () => {
+      renderStudentCatalog();
+      const currentNis = document.getElementById('input-search-nis').value.trim();
+      if (currentNis) doSearchNis();
+    });
+  </script>
+</body>
+</html>

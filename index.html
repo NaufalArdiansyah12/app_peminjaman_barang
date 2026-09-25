@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ms" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log Masuk — Sistem Inventori & Peminjaman Makmal</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              primary: '#1B4D3E',
+              'primary-hover': '#246350',
+              'primary-dark': '#103227',
+              mint: '#4EAE85',
+              'mint-light': '#68C49D',
+              'mint-subtle': '#EAF4F0',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .bg-topo-mesh {
+      background-color: #103227;
+      background-image: 
+        radial-gradient(ellipse at top right, rgba(78, 174, 133, 0.28) 0%, transparent 60%),
+        radial-gradient(ellipse at bottom left, rgba(27, 77, 62, 0.7) 0%, transparent 65%),
+        repeating-radial-gradient(circle at 100% 100%, transparent 0, transparent 18px, rgba(255, 255, 255, 0.04) 19px, transparent 20px);
+    }
+  </style>
+</head>
+<body class="bg-white font-sans text-gray-900 h-full antialiased flex flex-col md:flex-row">
+
+  <!-- LEFT PANEL: BRANDING & ROLE INFO (Full screen height) -->
+  <div class="md:w-5/12 lg:w-4/12 bg-topo-mesh p-8 sm:p-12 text-white flex flex-col justify-between relative min-h-[340px] md:h-full">
+    <div class="space-y-8">
+      <!-- Logo -->
+      <div class="flex items-center gap-3.5">
+        <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-brand-mint border border-white/15 shadow-inner">
+          <i data-lucide="flask-conical" stroke-width="2.5" class="w-7 h-7"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-2xl tracking-tight block leading-tight">SIM Makmal</span>
+          <span class="text-[11px] font-semibold text-brand-mint-light tracking-wider uppercase">Sains & Inovasi Sekolah</span>
+        </div>
+      </div>
+
+      <div class="space-y-3 pt-2">
+        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight">Sistem Pengurusan & Peminjaman Makmal</h2>
+        <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">
+          Platform berpusat untuk mengurus inventori alatan sains, merekod peminjaman murid secara digital, dan memantau pemulangan secara masa nyata.
+        </p>
+      </div>
+
+      <!-- Role Access Info Cards -->
+      <div class="space-y-3 pt-2">
+        <div class="flex items-start gap-3 text-xs text-emerald-100 bg-white/5 p-3 rounded-2xl border border-white/10">
+          <i data-lucide="shield-check" class="w-4 h-4 text-brand-mint shrink-0 mt-0.5"></i>
+          <div>
+            <strong class="text-white block font-bold">Admin (Pentadbir)</strong>
+            <span class="text-gray-300 text-[11px]">Urus master alatan, akaun petugas, dan muat turun laporan rasmi.</span>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 text-xs text-emerald-100 bg-white/5 p-3 rounded-2xl border border-white/10">
+          <i data-lucide="clipboard-check" class="w-4 h-4 text-brand-mint shrink-0 mt-0.5"></i>
+          <div>
+            <strong class="text-white block font-bold">Petugas Makmal</strong>
+            <span class="text-gray-300 text-[11px]">Rekod transaksi peminjaman baharu & semak fizikal pulangan.</span>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 text-xs text-emerald-100 bg-white/5 p-3 rounded-2xl border border-white/10">
+          <i data-lucide="graduation-cap" class="w-4 h-4 text-brand-mint shrink-0 mt-0.5"></i>
+          <div>
+            <strong class="text-white block font-bold">Siswa (Murid)</strong>
+            <span class="text-gray-300 text-[11px]">Semakan kendiri baki alatan & status tarikh pemulangan alatan via NIS.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- School Footer -->
+    <div class="pt-8 mt-6 border-t border-white/10 text-xs text-gray-400 flex items-center justify-between">
+      <span>SMK Sains — Makmal Kimia, Biologi & Fizik</span>
+      <span class="font-mono text-[10px]">v1.0-PRO</span>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL: LOGIN FORM (Full viewport height & scrollable) -->
+  <div class="flex-1 p-6 sm:p-12 lg:p-16 flex flex-col justify-between bg-white overflow-y-auto">
+    <div class="max-w-md w-full mx-auto my-auto space-y-6">
+
+      <!-- Active Session Alert (If user is already logged in) -->
+      <div id="active-session-banner" class="hidden p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs space-y-2">
+        <div class="flex items-center gap-2 text-emerald-800 font-bold">
+          <i data-lucide="user-check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+          <span>Sesi Aktif Dikesan</span>
+        </div>
+        <p class="text-emerald-700 text-[11px]" id="active-session-text">
+          Anda sedang log masuk sebagai pengguna.
+        </p>
+        <div class="flex items-center gap-2 pt-1">
+          <a id="btn-goto-dashboard" href="#" class="px-3 py-1.5 bg-brand-primary text-white font-bold rounded-xl text-[11px] hover:bg-brand-primary-hover transition-all">
+            Teruskan ke Dashboard
+          </a>
+          <button type="button" onclick="handleLogout()" class="px-3 py-1.5 bg-white border border-gray-200 text-rose-600 font-bold rounded-xl text-[11px] hover:bg-rose-50 transition-all">
+            Log Keluar
+          </button>
+        </div>
+      </div>
+
+      <!-- Auth Guard Alert Banner (When user forced access without login) -->
+      <div id="auth-alert-banner" class="hidden p-4 bg-amber-50 border border-amber-200/90 rounded-2xl text-xs flex items-start gap-3 text-amber-900 animate-in fade-in duration-200">
+        <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+        <div class="flex-1 min-w-0">
+          <strong class="block font-bold text-amber-950">Akses Terhad</strong>
+          <span id="auth-alert-message" class="text-[11px] text-amber-800 leading-relaxed">
+            Sila log masuk terlebih dahulu untuk mengakses sistem makmal.
+          </span>
+        </div>
+      </div>
+
+      <!-- Header Title -->
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">Log Masuk ke Sistem</h1>
+        <p class="text-xs sm:text-sm text-gray-500 mt-1">Sila masukkan maklumat pengesahan diri anda.</p>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" onsubmit="handleLoginSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1.5" id="label-identifier">Nama Pengguna (Username) / NIS / Emel *</label>
+          <div class="relative">
+            <i data-lucide="user" class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input id="input-identifier" type="text" required placeholder="Masukkan username, NIS, atau emel" value="admin"
+              class="w-full pl-10 pr-4 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all">
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-semibold text-gray-700">Kata Laluan *</label>
+            <span class="text-[11px] text-gray-400">Demo: sebarang nilai</span>
+          </div>
+          <div class="relative">
+            <i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input id="input-password" type="password" required placeholder="••••••••" value="admin123"
+              class="w-full pl-10 pr-4 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all">
+          </div>
+        </div>
+
+        <!-- 1-Click Demo Shortcut Chips -->
+        <div class="p-3.5 bg-gray-50 rounded-2xl border border-gray-100 space-y-2">
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Pilih Cepat Akaun Demo:</span>
+          <div class="flex flex-wrap gap-2 text-[11px]">
+            <button type="button" onclick="fillDemo('admin')" class="px-2.5 py-1 bg-white hover:bg-gray-100 border border-gray-200 rounded-lg font-bold text-brand-primary">Admin (admin)</button>
+            <button type="button" onclick="fillDemo('syahrul')" class="px-2.5 py-1 bg-white hover:bg-gray-100 border border-gray-200 rounded-lg font-bold text-gray-700">Petugas (syahrul)</button>
+            <button type="button" onclick="fillDemo('2024001')" class="px-2.5 py-1 bg-white hover:bg-gray-100 border border-gray-200 rounded-lg font-bold text-gray-700">Siswa (2024001)</button>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-brand-primary hover:bg-brand-primary-hover active:scale-[0.99] text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-brand-primary/20 flex items-center justify-center gap-2">
+          <i data-lucide="log-in" class="w-4 h-4 text-brand-mint"></i>
+          <span>Log Masuk Sekarang</span>
+        </button>
+      </form>
+
+      <!-- Bottom Register Link -->
+      <div class="pt-6 border-t border-gray-100 text-center text-xs text-gray-500">
+        <span>Belum mempunyai akaun murid atau petugas?</span>
+        <a href="register.html" class="font-bold text-brand-primary hover:underline ml-1">Daftar Akaun Baharu</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="store.js"></script>
+
+  <script>
+    function refreshIcons() {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    }
+
+    function fillDemo(identifier) {
+      document.getElementById('input-identifier').value = identifier;
+      document.getElementById('input-password').value = 'demo123';
+    }
+
+    function handleLogout() {
+      MakmalStore.logout('index.html');
+      location.reload();
+    }
+
+    function checkActiveSession() {
+      const user = MakmalStore.getCurrentUser();
+      if (user) {
+        const banner = document.getElementById('active-session-banner');
+        const text = document.getElementById('active-session-text');
+        const gotoBtn = document.getElementById('btn-goto-dashboard');
+        
+        banner.classList.remove('hidden');
+        text.textContent = `Anda sedang log masuk sebagai ${user.name} (${user.role}).`;
+        
+        if (user.role === 'Admin') {
+          gotoBtn.href = 'admin/dashboard.html';
+        } else if (user.role === 'Petugas') {
+          gotoBtn.href = 'petugas/dashboard.html';
+        } else {
+          gotoBtn.href = 'siswa/dashboard.html';
+        }
+      }
+    }
+
+    function checkAuthMessages() {
+      const authMsg = sessionStorage.getItem('sim_makmal_auth_msg');
+      if (authMsg) {
+        const banner = document.getElementById('auth-alert-banner');
+        const text = document.getElementById('auth-alert-message');
+        if (banner && text) {
+          text.textContent = authMsg;
+          banner.classList.remove('hidden');
+        }
+        MakmalStore.showToast(authMsg, 'warning');
+        sessionStorage.removeItem('sim_makmal_auth_msg');
+      }
+    }
+
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      const identifier = document.getElementById('input-identifier').value.trim();
+      const password = document.getElementById('input-password').value;
+
+      try {
+        // Auto-detect role: coba Admin/Petugas dulu, lalu Siswa
+        const user = MakmalStore.loginAuto(identifier, password);
+        MakmalStore.showToast(`Log masuk berjaya sebagai ${user.name} (${user.role})!`, 'success');
+
+        const redirectUrl = sessionStorage.getItem('sim_makmal_redirect');
+        sessionStorage.removeItem('sim_makmal_redirect');
+
+        setTimeout(() => {
+          if (redirectUrl) {
+            const isAuthorized = 
+              user.role === 'Admin' ? true :
+              user.role === 'Petugas' ? !redirectUrl.includes('/admin/') :
+              redirectUrl.includes('/siswa/');
+            if (isAuthorized) {
+              window.location.href = redirectUrl;
+              return;
+            }
+          }
+
+          if (user.role === 'Admin') {
+            window.location.href = 'admin/dashboard.html';
+          } else if (user.role === 'Petugas') {
+            window.location.href = 'petugas/dashboard.html';
+          } else if (user.role === 'Siswa') {
+            window.location.href = 'siswa/dashboard.html';
+          }
+        }, 300);
+      } catch (err) {
+        MakmalStore.showToast(err.message, 'error');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      refreshIcons();
+      checkAuthMessages();
+      checkActiveSession();
+    });
+  </script>
+</body>
+</html>

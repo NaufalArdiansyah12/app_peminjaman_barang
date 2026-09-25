@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengurusan Petugas — Admin SIM Makmal</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              primary: '#1B4D3E',
+              'primary-hover': '#246350',
+              'primary-dark': '#103227',
+              mint: '#4EAE85',
+              'mint-light': '#68C49D',
+              'mint-subtle': '#EAF4F0',
+            }
+          },
+          boxShadow: {
+            'subtle-card': '0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 14px rgba(0, 0, 0, 0.03)',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#EDEDED] font-sans text-gray-900 min-h-screen p-2 sm:p-4 md:p-6 flex items-center justify-center antialiased">
+
+  <div class="w-full max-w-[1440px] bg-white rounded-[28px] border border-gray-200/90 shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[920px]">
+
+    <!-- Mobile Header -->
+    <div class="lg:hidden flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-full bg-brand-primary flex items-center justify-center text-brand-mint">
+          <i data-lucide="users" class="w-5 h-5"></i>
+        </div>
+        <span class="font-extrabold text-xl tracking-tight text-gray-900">SIM Makmal</span>
+      </div>
+      <button id="mobile-menu-btn" class="p-2 rounded-full border border-gray-200 text-gray-700">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <div id="mobile-overlay" class="fixed inset-0 z-40 bg-black/40 hidden lg:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" data-active="petugas"></aside>
+    <script src="sidebar.js"></script>
+
+    <!-- Workspace -->
+    <div class="flex-1 flex flex-col bg-[#F6F7F9] min-w-0 overflow-y-auto">
+
+      <header class="px-6 lg:px-8 py-4 bg-[#F6F7F9] flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-200/60 sticky top-0 z-30 backdrop-blur-md bg-opacity-95">
+        <div>
+          <h1 class="text-xl font-extrabold tracking-tight text-gray-900">Pengurusan Akaun Petugas Makmal</h1>
+          <p class="text-xs text-gray-500 font-medium">Urus kelayakan akses kakitangan makmal, tetapkan peranan, dan pantau status akaun</p>
+        </div>
+
+        <button onclick="openAddOfficerModal()" class="px-4 py-2 bg-brand-primary hover:bg-brand-primary-hover active:scale-95 text-white font-semibold text-xs rounded-full flex items-center gap-1.5 shadow-sm transition-all">
+          <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+          <span>Daftar Petugas Baharu</span>
+        </button>
+      </header>
+
+      <main class="p-6 lg:p-8 space-y-6">
+
+        <!-- Officers Table -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-subtle-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-gray-50/80 border-b border-gray-100 text-gray-400 font-bold uppercase tracking-wider text-[10px]">
+                <tr>
+                  <th class="py-3.5 px-5">ID & Nama Petugas</th>
+                  <th class="py-3.5 px-5">Peranan</th>
+                  <th class="py-3.5 px-5">Makmal Ditugaskan</th>
+                  <th class="py-3.5 px-5">Maklumat Kontak</th>
+                  <th class="py-3.5 px-5 text-center">Status</th>
+                  <th class="py-3.5 px-5 text-center">Log Masuk Terakhir</th>
+                  <th class="py-3.5 px-5 text-right">Tindakan</th>
+                </tr>
+              </thead>
+              <tbody id="officers-tbody" class="divide-y divide-gray-100">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL TAMBAH / EDIT PETUGAS -->
+  <div id="officer-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl shadow-2xl border border-gray-200 max-w-md w-full p-6 sm:p-8 space-y-5 relative">
+      <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+        <h3 class="text-base font-extrabold text-gray-900" id="officer-modal-title">Daftar Petugas Baharu</h3>
+        <button onclick="closeOfficerModal()" class="p-1.5 rounded-full text-gray-400 hover:text-gray-700">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form id="officer-form" onsubmit="handleOfficerFormSubmit(event)" class="space-y-4">
+        <input type="hidden" id="edit-officer-id">
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Penuh Pegawai *</label>
+          <input id="officer-name" type="text" required placeholder="Cth: En. Zulkifli bin Ismail" class="w-full px-3.5 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:ring-2 focus:ring-brand-primary">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Pengguna (Username) *</label>
+            <input id="officer-username" type="text" required placeholder="zulkifli" class="w-full px-3.5 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs font-mono focus:bg-white focus:ring-2 focus:ring-brand-primary">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Peranan Akses *</label>
+            <select id="officer-role" required class="w-full px-3.5 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-brand-primary">
+              <option value="Petugas">Petugas Makmal</option>
+              <option value="Admin">Admin Pentadbir</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Makmal Ditugaskan *</label>
+          <input id="officer-lab" type="text" required placeholder="Cth: Makmal Kimia & Biologi" class="w-full px-3.5 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:ring-2 focus:ring-brand-primary">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Emel Rasmi *</label>
+            <input id="officer-email" type="email" required placeholder="nama@makmal.edu.my" class="w-full px-3.5 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:bg-white focus:ring-2 focus:ring-brand-primary">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">No. Telefon</label>
+            <input id="officer-phone" type="text" placeholder="012-XXXXXXX" class="w-full px-3.5 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs font-mono focus:bg-white focus:ring-2 focus:ring-brand-primary">
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeOfficerModal()" class="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-xl">Batal</button>
+          <button type="submit" class="px-5 py-2 bg-brand-primary hover:bg-brand-primary-hover active:scale-95 text-white text-xs font-bold rounded-xl shadow-xs">Simpan Akaun</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../store.js"></script>
+
+  <script>
+    function refreshIcons() {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    }
+
+    // Toggle Mobile
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileCloseBtn = document.getElementById('mobile-close-btn');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    const sidebar = document.getElementById('sidebar');
+
+    function toggleMobile() {
+      sidebar.classList.toggle('-translate-x-full');
+      mobileOverlay.classList.toggle('hidden');
+    }
+    if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMobile);
+    if (mobileCloseBtn) mobileCloseBtn.addEventListener('click', toggleMobile);
+    if (mobileOverlay) mobileOverlay.addEventListener('click', toggleMobile);
+
+    function renderOfficersTable() {
+      const tbody = document.getElementById('officers-tbody');
+      tbody.innerHTML = '';
+      const officers = MakmalStore.getOfficers();
+      const metrics = MakmalStore.getMetrics();
+
+      document.getElementById('sidebar-officer-count').textContent = officers.length;
+      document.getElementById('badge-active-loans').textContent = metrics.activeLoansCount;
+      const overdueSide = document.getElementById('badge-overdue-loans');
+      if (metrics.overdueLoansCount > 0) {
+        overdueSide.textContent = metrics.overdueLoansCount + ' lewat';
+        overdueSide.classList.remove('hidden');
+      } else {
+        overdueSide.classList.add('hidden');
+      }
+
+      officers.forEach(officer => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-50/70 transition-colors';
+        const isMainAdmin = officer.username === 'admin';
+        const isAktif = officer.status === 'Aktif';
+
+        tr.innerHTML = `
+          <td class="py-4 px-5">
+            <div class="font-bold text-gray-900">${officer.name}</div>
+            <div class="text-[10px] text-gray-400 font-mono">${officer.id} • @${officer.username}</div>
+          </td>
+          <td class="py-4 px-5">
+            <span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] ${officer.role === 'Admin' ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'bg-blue-50 text-blue-700 border border-blue-200'}">
+              ${officer.role}
+            </span>
+          </td>
+          <td class="py-4 px-5 text-gray-700 font-medium">${officer.labAssigned || 'Makmal Am'}</td>
+          <td class="py-4 px-5 text-gray-600">
+            <div>${officer.email}</div>
+            <div class="text-[10px] text-gray-400 font-mono">${officer.phone || '-'}</div>
+          </td>
+          <td class="py-4 px-5 text-center">
+            <button onclick="toggleStatus('${officer.id}')" class="px-2.5 py-1 rounded-full font-bold text-[10px] transition-all ${
+              isAktif ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+            }">
+              ${officer.status}
+            </button>
+          </td>
+          <td class="py-4 px-5 text-center text-gray-400 font-mono text-[11px]">${officer.lastLogin || '-'}</td>
+          <td class="py-4 px-5 text-right space-x-1">
+            <button onclick="openEditOfficerModal('${officer.id}')" class="p-1.5 text-gray-500 hover:text-brand-primary hover:bg-gray-100 rounded-lg transition-all" title="Kemas Kini">
+              <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+            </button>
+            ${
+              !isMainAdmin
+                ? `<button onclick="confirmDeleteOfficer('${officer.id}')" class="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all" title="Padam Akaun">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                   </button>`
+                : ''
+            }
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      refreshIcons();
+    }
+
+    function openAddOfficerModal() {
+      document.getElementById('officer-modal-title').textContent = 'Daftar Petugas Baharu';
+      document.getElementById('edit-officer-id').value = '';
+      document.getElementById('officer-form').reset();
+      document.getElementById('officer-username').readOnly = false;
+      document.getElementById('officer-modal').classList.remove('hidden');
+      refreshIcons();
+    }
+
+    function openEditOfficerModal(id) {
+      const officer = MakmalStore.getOfficers().find(o => o.id === id);
+      if (!officer) return;
+
+      document.getElementById('officer-modal-title').textContent = 'Kemas Kini Akaun Petugas';
+      document.getElementById('edit-officer-id').value = officer.id;
+      document.getElementById('officer-name').value = officer.name;
+      document.getElementById('officer-username').value = officer.username;
+      document.getElementById('officer-username').readOnly = true;
+      document.getElementById('officer-role').value = officer.role;
+      document.getElementById('officer-lab').value = officer.labAssigned || '';
+      document.getElementById('officer-email').value = officer.email;
+      document.getElementById('officer-phone').value = officer.phone || '';
+      document.getElementById('officer-modal').classList.remove('hidden');
+      refreshIcons();
+    }
+
+    function closeOfficerModal() {
+      document.getElementById('officer-modal').classList.add('hidden');
+    }
+
+    function handleOfficerFormSubmit(e) {
+      e.preventDefault();
+      const editId = document.getElementById('edit-officer-id').value;
+      const name = document.getElementById('officer-name').value.trim();
+      const username = document.getElementById('officer-username').value.trim();
+      const role = document.getElementById('officer-role').value;
+      const labAssigned = document.getElementById('officer-lab').value.trim();
+      const email = document.getElementById('officer-email').value.trim();
+      const phone = document.getElementById('officer-phone').value.trim();
+
+      try {
+        if (editId) {
+          MakmalStore.updateOfficer(editId, { name, role, labAssigned, email, phone });
+          MakmalStore.showToast('Maklumat petugas berjaya dikemaskini!', 'success');
+        } else {
+          MakmalStore.addOfficer({ name, username, role, labAssigned, email, phone });
+          MakmalStore.showToast(`Akaun petugas ${name} berjaya didaftarkan!`, 'success');
+        }
+        closeOfficerModal();
+        renderOfficersTable();
+      } catch (err) {
+        MakmalStore.showToast(err.message, 'error');
+      }
+    }
+
+    function toggleStatus(id) {
+      const officer = MakmalStore.toggleOfficerStatus(id);
+      if (officer) {
+        MakmalStore.showToast(`Status akaun ${officer.name} ditukar kepada ${officer.status}.`);
+        renderOfficersTable();
+      }
+    }
+
+    function confirmDeleteOfficer(id) {
+      const officer = MakmalStore.getOfficers().find(o => o.id === id);
+      if (!officer) return;
+
+      if (confirm(`Adakah anda pasti mahu memadam akaun petugas "${officer.name}"?`)) {
+        try {
+          MakmalStore.deleteOfficer(id);
+          MakmalStore.showToast('Akaun petugas berjaya dipadam.', 'success');
+          renderOfficersTable();
+        } catch (err) {
+          MakmalStore.showToast(err.message, 'error');
+        }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', renderOfficersTable);
+    window.addEventListener('sim_makmal_sync', renderOfficersTable);
+  </script>
+</body>
+</html>
