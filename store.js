@@ -820,26 +820,30 @@ const MakmalStore = {
     window.dispatchEvent(new Event('sim_makmal_sync'));
   },
 
-  logout(redirectUrl = '../index.html') {
+  logout(redirectUrl) {
     this.setCurrentUser(null);
     sessionStorage.removeItem('sim_makmal_redirect');
     sessionStorage.setItem('sim_makmal_auth_msg', 'Anda telah berjaya log keluar dari sistem.');
-    window.location.replace(redirectUrl);
+    const isSubdir = /[\/\\](admin|petugas|siswa)[\/\\]/i.test(window.location.pathname);
+    const target = redirectUrl || (isSubdir ? '../index.html' : 'index.html');
+    window.location.replace(target);
   },
 
   requireAuth(allowedRoles) {
     const user = this.getCurrentUser();
+    const isSubdir = /[\/\\](admin|petugas|siswa)[\/\\]/i.test(window.location.pathname);
+    const rootIndex = isSubdir ? '../index.html' : 'index.html';
     if (!user) {
       sessionStorage.setItem('sim_makmal_auth_msg', 'Sila log masuk terlebih dahulu untuk mengakses sistem makmal.');
       sessionStorage.setItem('sim_makmal_redirect', window.location.href);
-      window.location.replace('../index.html');
+      window.location.replace(rootIndex);
       return false;
     }
     if (allowedRoles) {
       const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
       if (!roles.includes(user.role) && user.role !== 'Admin') {
         sessionStorage.setItem('sim_makmal_auth_msg', `Akses disekat. Halaman ini memerlukan peranan ${roles.join(' / ')}. Anda log masuk sebagai ${user.role}.`);
-        window.location.replace('../index.html');
+        window.location.replace(rootIndex);
         return false;
       }
     }

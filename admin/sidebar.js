@@ -25,7 +25,7 @@
       : 'flex items-center justify-between px-3.5 py-2 rounded-full text-gray-600 hover:text-gray-950 hover:bg-gray-50 text-xs font-semibold transition-all';
   }
 
-  aside.className = 'fixed inset-y-0 left-0 z-50 w-72 bg-white px-6 py-7 flex flex-col justify-between border-r border-gray-100 transform -translate-x-full transition-transform duration-300 ease-in-out lg:static lg:w-[265px] lg:translate-x-0 shrink-0';
+  aside.className = 'fixed inset-y-0 left-0 z-50 w-72 bg-white px-6 py-7 flex flex-col justify-between border-r border-gray-100 transform -translate-x-full transition-transform duration-300 ease-in-out lg:static lg:h-full lg:w-[265px] lg:translate-x-0 shrink-0 overflow-y-auto';
 
   aside.innerHTML = `
     <div class="space-y-6">
@@ -133,8 +133,26 @@
   // Mobile toggle
   const closeBtn = document.getElementById('mobile-close-btn');
   const menuBtn = document.getElementById('mobile-menu-btn');
-  if (closeBtn) closeBtn.addEventListener('click', () => aside.classList.add('-translate-x-full'));
-  if (menuBtn) menuBtn.addEventListener('click', () => aside.classList.remove('-translate-x-full'));
+  const overlay = document.getElementById('mobile-overlay');
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      aside.classList.add('-translate-x-full');
+      if (overlay) overlay.classList.add('hidden');
+    });
+  }
+  if (menuBtn) {
+    menuBtn.addEventListener('click', () => {
+      aside.classList.remove('-translate-x-full');
+      if (overlay) overlay.classList.remove('hidden');
+    });
+  }
+  if (overlay) {
+    overlay.addEventListener('click', () => {
+      aside.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    });
+  }
 
   // Badge + user UI updater
   function updateSidebarData() {

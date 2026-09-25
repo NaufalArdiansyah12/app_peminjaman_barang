@@ -19,9 +19,9 @@ Single global object `window.MakmalStore` — all pages load this via `<script s
 ```
 index.html          ← entry point, role selector
 register.html       ← Siswa self-registration
-admin/              ← Admin only (dashboard, master-barang, petugas, peminjaman, pengembalian, laporan)
-petugas/            ← Petugas only (dashboard, peminjaman, pengembalian)
-siswa/              ← Siswa only (dashboard)
+admin/              ← Admin only (dashboard, master-barang, petugas, peminjaman, pengembalian, laporan, sidebar.js)
+petugas/            ← Petugas only (dashboard, peminjaman, pengembalian, sidebar.js)
+siswa/              ← Siswa only (dashboard, sidebar.js)
 ```
 
 Each page calls `MakmalStore.requireAuth(['Admin'])` or `requireAuth(['Petugas'])` at load. Admin bypasses all role checks. Login redirects to role-specific dashboard.

@@ -41,9 +41,9 @@
     }
   </script>
 </head>
-<body class="bg-[#EDEDED] font-sans text-gray-900 min-h-screen p-2 sm:p-4 md:p-6 flex items-center justify-center antialiased">
+<body class="bg-white font-sans text-gray-900 h-screen w-full overflow-hidden antialiased">
 
-  <div class="w-full max-w-[1440px] bg-white rounded-[28px] border border-gray-200/90 shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[920px]">
+  <div class="w-full h-full bg-white overflow-hidden flex flex-col lg:flex-row">
 
     <!-- Mobile Header -->
     <div class="lg:hidden flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white">
@@ -61,87 +61,8 @@
     <div id="mobile-overlay" class="fixed inset-0 z-40 bg-black/40 hidden lg:hidden"></div>
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white px-6 py-7 flex flex-col justify-between border-r border-gray-100 transform -translate-x-full transition-transform duration-300 ease-in-out lg:static lg:w-[265px] lg:translate-x-0 shrink-0">
-      <div class="space-y-6">
-        <!-- Brand -->
-        <div class="flex items-center justify-between px-2">
-          <div class="flex items-center gap-2.5">
-            <div class="w-10 h-10 rounded-2xl bg-brand-primary flex items-center justify-center text-brand-mint shadow-md shadow-brand-primary/20">
-              <i data-lucide="flask-conical" stroke-width="2.5" class="w-5 h-5"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-1.5">
-                <span class="font-extrabold text-lg tracking-tight text-gray-900 leading-tight">SIM Makmal</span>
-                <span class="text-[9px] font-bold bg-brand-mint text-brand-primary-dark px-1.5 py-0.2 rounded">PETUGAS</span>
-              </div>
-              <span class="text-[10px] font-semibold text-gray-400 tracking-wider uppercase">Operasi Harian</span>
-            </div>
-          </div>
-          <button id="mobile-close-btn" class="lg:hidden p-1.5 rounded-full text-gray-500 hover:bg-gray-100">
-            <i data-lucide="x" class="w-5 h-5"></i>
-          </button>
-        </div>
-
-        <!-- Role Switcher -->
-        <div class="px-2">
-          <div class="p-1.5 bg-gray-100 rounded-xl flex items-center text-[10.5px] font-bold">
-            <a href="../admin/dashboard.html" class="flex-1 py-1 text-center text-gray-500 hover:text-gray-900">Admin</a>
-            <span class="flex-1 py-1 text-center bg-white text-brand-primary rounded-lg shadow-xs">Petugas</span>
-            <a href="../siswa/dashboard.html" class="flex-1 py-1 text-center text-gray-500 hover:text-gray-900">Siswa</a>
-          </div>
-        </div>
-
-        <!-- Navigation Menu -->
-        <div>
-          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3">Tugas Operasi</span>
-          <nav class="mt-2 space-y-1.5">
-            <!-- Active: Dashboard -->
-            <a href="dashboard.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-full bg-brand-primary text-white font-semibold text-xs tracking-wide shadow-sm transition-all">
-              <i data-lucide="layout-grid" class="w-4 h-4 text-brand-mint"></i>
-              <span>Papan Pemuka</span>
-            </a>
-            <!-- Peminjaman -->
-            <a href="peminjaman.html" class="flex items-center justify-between px-3.5 py-2.5 rounded-full text-gray-600 hover:text-gray-950 hover:bg-gray-50 text-xs font-semibold transition-all group">
-              <div class="flex items-center gap-3">
-                <i data-lucide="arrow-up-right-from-circle" class="w-4 h-4 text-gray-400 group-hover:text-brand-primary"></i>
-                <span>Peminjaman Baharu</span>
-              </div>
-              <span class="bg-emerald-50 text-brand-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100" id="badge-active-loans">0</span>
-            </a>
-            <!-- Pengembalian -->
-            <a href="pengembalian.html" class="flex items-center justify-between px-3.5 py-2.5 rounded-full text-gray-600 hover:text-gray-950 hover:bg-gray-50 text-xs font-semibold transition-all group">
-              <div class="flex items-center gap-3">
-                <i data-lucide="arrow-down-left-from-circle" class="w-4 h-4 text-gray-400 group-hover:text-brand-primary"></i>
-                <span>Pengesahan Pulang</span>
-              </div>
-              <span class="bg-rose-50 text-rose-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-rose-100 hidden" id="badge-overdue-loans">0</span>
-            </a>
-          </nav>
-        </div>
-
-        <!-- Info Operasi -->
-        <div class="p-3.5 bg-brand-mint-subtle rounded-2xl border border-brand-mint/20 space-y-1.5">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-brand-primary">Makmal Sains Aktif</span>
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          </div>
-          <p class="text-[11px] text-gray-600 leading-relaxed">Sesi amali praktikal dibuka. Pastikan rekod kondisi fizikal disemak teliti.</p>
-        </div>
-      </div>
-
-      <!-- Officer Profile Card -->
-      <div class="pt-4 border-t border-gray-100 flex items-center gap-3 px-2">
-        <div class="w-9 h-9 rounded-full bg-brand-primary text-brand-mint font-bold text-xs flex items-center justify-center ring-2 ring-brand-mint/30">
-          PTG
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="text-xs font-bold text-gray-900 truncate">En. Syahrul Nizam</div>
-        </div>
-        <a href="../index.html" class="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all" title="Log Keluar">
-          <i data-lucide="log-out" class="w-4 h-4"></i>
-        </a>
-      </div>
-    </aside>
+    <aside id="sidebar" data-active="dashboard"></aside>
+    <script src="sidebar.js"></script>
 
     <!-- Workspace -->
     <div class="flex-1 flex flex-col bg-[#F6F7F9] min-w-0 overflow-y-auto">

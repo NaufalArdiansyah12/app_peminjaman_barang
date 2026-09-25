@@ -53,10 +53,10 @@
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
   </style>
 </head>
-<body class="bg-[#EDEDED] font-sans text-gray-900 min-h-screen p-2 sm:p-4 md:p-6 flex items-center justify-center antialiased">
+<body class="bg-white font-sans text-gray-900 h-screen w-full overflow-hidden antialiased">
 
   <!-- MAIN APP CONTAINER -->
-  <div class="w-full max-w-[1440px] bg-white rounded-[28px] border border-gray-200/90 shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[920px]">
+  <div class="w-full h-full bg-white overflow-hidden flex flex-col lg:flex-row">
 
     <!-- MOBILE HEADER -->
     <div class="lg:hidden flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white">
@@ -75,90 +75,8 @@
     <div id="mobile-overlay" class="fixed inset-0 z-40 bg-black/40 hidden lg:hidden"></div>
 
     <!-- SIDEBAR NAVIGATION -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white px-6 py-7 flex flex-col justify-between border-r border-gray-100 transform -translate-x-full transition-transform duration-300 ease-in-out lg:static lg:w-[260px] lg:translate-x-0 shrink-0">
-      <div class="space-y-7">
-        <!-- Brand -->
-        <div class="flex items-center justify-between px-2">
-          <div class="flex items-center gap-2.5">
-            <div class="w-10 h-10 rounded-2xl bg-brand-primary flex items-center justify-center text-brand-mint shadow-md shadow-brand-primary/20">
-              <i data-lucide="flask-conical" stroke-width="2.5" class="w-5 h-5"></i>
-            </div>
-            <div>
-              <span class="font-extrabold text-xl tracking-tight text-gray-900 block leading-tight">SIM Makmal</span>
-              <span class="text-[10px] font-semibold text-gray-400 tracking-wider uppercase">Sains & Inovasi</span>
-            </div>
-          </div>
-          <button id="mobile-close-btn" type="button" class="lg:hidden p-1.5 rounded-full text-gray-500 hover:bg-gray-100">
-            <i data-lucide="x" stroke-width="2.5" class="w-5 h-5"></i>
-          </button>
-        </div>
-
-        <!-- Role Switcher Pill -->
-        <div class="px-2">
-          <div class="p-1.5 bg-gray-100 rounded-xl flex items-center text-[10.5px] font-bold">
-            <span class="flex-1 py-1 text-center bg-white text-brand-primary rounded-lg shadow-xs">Admin</span>
-            <a href="../petugas/dashboard.html" class="flex-1 py-1 text-center text-gray-500 hover:text-gray-900">Petugas</a>
-            <a href="../siswa/dashboard.html" class="flex-1 py-1 text-center text-gray-500 hover:text-gray-900">Siswa</a>
-          </div>
-        </div>
-
-        <!-- Navigation Group -->
-        <div>
-          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3">Modul Pengurusan</span>
-          <nav class="mt-2 space-y-1">
-            <a href="dashboard.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-full text-gray-600 hover:text-gray-950 hover:bg-gray-50 text-xs font-semibold transition-all">
-              <i data-lucide="layout-grid" class="w-4 h-4 text-gray-400"></i>
-              <span>Papan Pemuka</span>
-            </a>
-            <a href="master-barang.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-full text-gray-600 hover:text-gray-950 hover:bg-gray-50 text-xs font-semibold transition-all">
-              <i data-lucide="box" class="w-4 h-4 text-gray-400"></i>
-              <span>Master Data Alatan</span>
-            </a>
-            <a href="petugas.html" class="flex items-center justify-between px-3.5 py-2.5 rounded-full text-gray-600 hover:text-gray-950 hover:bg-gray-50 text-xs font-semibold transition-all">
-              <div class="flex items-center gap-3">
-                <i data-lucide="users" class="w-4 h-4 text-gray-400"></i>
-                <span>Akaun Petugas</span>
-              </div>
-            </a>
-            <a href="laporan.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-full text-gray-600 hover:text-gray-950 hover:bg-gray-50 text-xs font-semibold transition-all">
-              <i data-lucide="file-bar-chart" class="w-4 h-4 text-gray-400"></i>
-              <span>Laporan Penuh</span>
-            </a>
-          </nav>
-        </div>
-
-        <div>
-          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3">Sirkulasi & Transaksi</span>
-          <nav class="mt-2 space-y-1">
-            <a href="peminjaman.html" class="flex items-center justify-between px-3.5 py-2 rounded-full text-gray-600 hover:text-gray-950 hover:bg-gray-50 text-xs font-semibold transition-all">
-              <div class="flex items-center gap-3">
-                <i data-lucide="arrow-up-right-from-circle" class="w-3.5 h-3.5 text-gray-400"></i>
-                <span>Peminjaman</span>
-              </div>
-              <span class="bg-emerald-50 text-brand-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100" id="sidebar-loans-count">0</span>
-            </a>
-            <!-- Active: Pengembalian -->
-            <a href="pengembalian.html" class="flex items-center justify-between px-3.5 py-2 rounded-full bg-brand-primary text-white font-semibold text-xs tracking-wide shadow-sm transition-all">
-              <div class="flex items-center gap-3">
-                <i data-lucide="arrow-down-left-from-circle" class="w-3.5 h-3.5 text-brand-mint"></i>
-                <span>Pengembalian</span>
-              </div>
-              <span class="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" id="sidebar-overdue-count">0</span>
-            </a>
-          </nav>
-        </div>
-      </div>
-
-      <div class="pt-4 border-t border-gray-100 flex items-center gap-3 px-2">
-        <div class="w-9 h-9 rounded-full bg-brand-primary text-brand-mint font-bold text-xs flex items-center justify-center ring-2 ring-brand-mint/30">
-          ADM
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="text-xs font-bold text-gray-900 truncate">Dr. Naufal</div>
-          <div class="text-[10px] text-brand-primary font-bold">Ketua Pentadbir Makmal</div>
-        </div>
-      </div>
-    </aside>
+    <aside id="sidebar" data-active="pengembalian"></aside>
+    <script src="sidebar.js"></script>
 
     <!-- RIGHT MAIN WORKSPACE -->
     <div class="flex-1 flex flex-col bg-[#F6F7F9] min-w-0 overflow-y-auto">
@@ -399,11 +317,14 @@
       document.getElementById('count-tab-returned').textContent = returnedCount;
 
       // Sidebar badges
-      document.getElementById('sidebar-loans-count').textContent = metrics.activeLoansCount;
-      const overdueSide = document.getElementById('sidebar-overdue-count');
-      overdueSide.textContent = overdueCount;
-      if (overdueCount > 0) overdueSide.classList.remove('hidden');
-      else overdueSide.classList.add('hidden');
+      const loansCountEl = document.getElementById('sidebar-loans-count') || document.getElementById('badge-active-loans');
+      if (loansCountEl) loansCountEl.textContent = metrics.activeLoansCount;
+      const overdueSide = document.getElementById('sidebar-overdue-count') || document.getElementById('badge-overdue-loans');
+      if (overdueSide) {
+        overdueSide.textContent = overdueCount;
+        if (overdueCount > 0) overdueSide.classList.remove('hidden');
+        else overdueSide.classList.add('hidden');
+      }
 
       // Tapis berdasarkan tab
       let filtered = allLoans.filter(l => {
